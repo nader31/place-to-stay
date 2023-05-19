@@ -3,12 +3,22 @@ import Head from "next/head";
 import { SignInButton, useClerk, useUser } from "@clerk/nextjs";
 
 import { api } from "~/utils/api";
+import { Listing } from "@prisma/client";
+import { useEffect, useState } from "react";
 
 const Home: NextPage = () => {
+  const [listings, setListings] = useState<Listing[]>([]);
+
   const user = useUser();
   const { signOut } = useClerk();
 
-  const { data } = api.listing.getAll.useQuery();
+  const { data, isLoading } = api.listing.getAll.useQuery();
+
+  useEffect(() => {
+    if (!isLoading && data) {
+      setListings(data);
+    }
+  }, [data, isLoading]);
 
   return (
     <>
@@ -25,7 +35,7 @@ const Home: NextPage = () => {
           )}
         </div>
         <div>
-          {data?.map((listing) => (
+          {listings.map((listing) => (
             <div key={listing.id}>
               <p>{listing.title}</p>
             </div>
