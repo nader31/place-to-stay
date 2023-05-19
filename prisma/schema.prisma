@@ -11,8 +11,54 @@ datasource db {
     relationMode = "prisma"
 }
 
-model Example {
+model Listing {
+    id          String    @id @default(cuid())
+    createdAt   DateTime  @default(now())
+    updatedAt   DateTime  @updatedAt
+    title       String
+    description String
+    price       Int
+    beds        Int
+    baths       Int
+    address     String?
+    city        String?
+    state       String?
+    zip         String?
+    country     String?
+    userId      String?
+    images      Image[]
+    bookings    Booking[]
+
+    @@index([userId])
+}
+
+model Image {
     id        String   @id @default(cuid())
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
+    url       String
+    listingId String
+    listing   Listing  @relation(fields: [listingId], references: [id])
+
+    @@index([listingId])
+}
+
+model Booking {
+    id        String   @id @default(cuid())
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    startDate DateTime
+    endDate   DateTime
+    userId    String
+    listingId String
+    listing   Listing  @relation(fields: [listingId], references: [id])
+    status    Status   @default(pending)
+
+    @@index([listingId])
+}
+
+enum Status {
+    pending
+    confirmed
+    canceled
 }
