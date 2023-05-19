@@ -21,6 +21,7 @@ const Home: NextPage = () => {
         <div>
           {!user.isSignedIn && <SignInButton />}
           {user.isSignedIn && (
+            // eslint-disable-next-line @typescript-eslint/no-misused-promises
             <button onClick={() => signOut()}>Sign out</button>
           )}
         </div>
