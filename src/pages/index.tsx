@@ -6,6 +6,13 @@ import { api } from "~/utils/api";
 
 const Home: NextPage = () => {
   const user = useUser();
+  const handleSignout = async () => {
+    try {
+      await signOut();
+    } catch (error) {
+      console.error(error);
+    }
+  };
   const { signOut } = useClerk();
 
   const { data } = api.listing.getAll.useQuery();
@@ -21,8 +28,7 @@ const Home: NextPage = () => {
         <div>
           {!user.isSignedIn && <SignInButton />}
           {user.isSignedIn && (
-            // eslint-disable-next-line @typescript-eslint/no-misused-promises
-            <button onClick={() => signOut()}>Sign out</button>
+            <button onClick={() => handleSignout}>Sign out</button>
           )}
         </div>
         <div>
