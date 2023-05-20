@@ -15,18 +15,6 @@ import { Fragment } from "react";
 import Image from "next/image";
 import { LoadingPage } from "~/components/loading";
 
-const CreateListingWizard = () => {
-  const { user } = useUser();
-
-  if (!user) return null;
-
-  return (
-    <div className="w-10 overflow-hidden rounded-full">
-      <img src={user.profileImageUrl} alt="Profile image" />
-    </div>
-  );
-};
-
 type ListingWithUser = RouterOutputs["listings"]["getAll"][number];
 const ListingView = (props: ListingWithUser) => {
   const { listing, author } = props;
@@ -66,7 +54,7 @@ const ListingView = (props: ListingWithUser) => {
 const Listings = () => {
   const { data, isLoading: listingsLoading } = api.listings.getAll.useQuery();
 
-  if (listingsLoading || true) return <LoadingPage />;
+  if (listingsLoading) return <LoadingPage />;
 
   if (!data) return <div>Something went wrong</div>;
 
