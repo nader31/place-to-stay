@@ -141,7 +141,13 @@ const CreateListing = () => {
         className="flex items-center justify-center rounded-lg bg-rose-600 px-4 py-2 font-medium text-white"
         disabled={isCreating}
       >
-        {isCreating ? <LoadingSpinner color="secondary" /> : "Create"}
+        {isCreating ? (
+          <div className="p-1">
+            <LoadingSpinner color="secondary" />
+          </div>
+        ) : (
+          "Create"
+        )}
       </button>
     </div>
   );
@@ -164,8 +170,15 @@ const ListingView = (props: ListingWithUser) => {
         <div className="h-72 w-full rounded-3xl bg-gray-100"></div>
       )}
       <div className="py-2">
-        <p className="font-semibold">{listing.title}</p>
-        <p className="text-sm text-gray-400">{listing.description}</p>
+        <p className="overflow-hidden text-ellipsis whitespace-nowrap font-semibold">
+          {listing.title}
+        </p>
+        <p className="overflow-hidden text-ellipsis whitespace-nowrap text-sm text-gray-400">
+          {listing.description}
+        </p>
+        <p className="mt-2">
+          <span className="font-bold">${listing.price}</span> night
+        </p>
         {author && (
           <div className="mt-2 flex items-center gap-2">
             <Image
