@@ -1,6 +1,11 @@
 import { clerkClient } from "@clerk/nextjs";
 import type { User } from "@clerk/nextjs/server";
-import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+import { z } from "zod";
+import {
+  createTRPCRouter,
+  privateProcedure,
+  publicProcedure,
+} from "~/server/api/trpc";
 
 const filterUserForClient = (user: User) => {
   return {
@@ -14,8 +19,8 @@ export const listingRouter = createTRPCRouter({
   getAll: publicProcedure.query(async ({ ctx }) => {
     const listings = await ctx.prisma.listing.findMany({
       take: 100,
-      where: {
-        userId: "user_2Q0QrFWURrXTlashyDJhIg1ArpF",
+      orderBy: {
+        createdAt: "desc",
       },
       include: {
         images: true,
@@ -33,4 +38,30 @@ export const listingRouter = createTRPCRouter({
       author: users.find((user) => user.id === listing.userId),
     }));
   }),
+
+  create: privateProcedure
+    .input(
+      z.object({
+        title: z.string().min(1).max(100),
+        description: z.string().min(1).max(1000),
+        price: z.number().min(1).max(1000000),
+        beds: z.number().min(1).max(100),
+        baths: z.number().min(1).max(100),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const userId = ctx.userId;
+
+      const listing = await ctx.prisma.listing.create({
+        data: {
+          title: input.title,
+          description: input.description,
+          price: input.price,
+          beds: input.beds,
+          baths: input.baths,
+          userId,
+        },
+      });
+      return listing;
+    }),
 });
