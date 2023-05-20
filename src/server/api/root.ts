@@ -7,7 +7,7 @@ import { listingRouter } from "./routers/listings";
  * All routers added in /api/routers should be manually added here.
  */
 export const appRouter = createTRPCRouter({
-  listing: listingRouter,
+  listings: listingRouter,
 });
 
 // export type definition of API
