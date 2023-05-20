@@ -13,7 +13,8 @@ import { api } from "~/utils/api";
 import { Popover, Transition } from "@headlessui/react";
 import { Fragment, useState } from "react";
 import Image from "next/image";
-import { LoadingPage } from "~/components/loading";
+import LoadingSpinner, { LoadingPage } from "~/components/loading";
+import toast from "react-hot-toast";
 
 const CreateListing = () => {
   const { user } = useUser();
@@ -30,6 +31,17 @@ const CreateListing = () => {
     onSuccess: () => {
       handleReset();
       void ctx.listings.getAll.invalidate();
+      toast.success("Listing created");
+    },
+    onError: (e) => {
+      const errorMessage = e.data?.zodError?.fieldErrors;
+      if (errorMessage) {
+        Object.values(errorMessage).map((error) => {
+          if (error && error[0]) {
+            toast.error(error[0]);
+          }
+        });
+      }
     },
   });
 
@@ -69,7 +81,7 @@ const CreateListing = () => {
       />
       <textarea
         placeholder="Description"
-        className="rounded-md border p-2"
+        className="resize-none rounded-md border p-2"
         value={description}
         onChange={(e) => setDescription(e.target.value)}
         disabled={isCreating}
@@ -126,9 +138,10 @@ const CreateListing = () => {
       </div>
       <button
         onClick={handleSubmit}
-        className="rounded-lg bg-rose-600 px-4 py-2 text-white"
+        className="flex items-center justify-center rounded-lg bg-rose-600 px-4 py-2 font-medium text-white"
+        disabled={isCreating}
       >
-        Create
+        {isCreating ? <LoadingSpinner color="secondary" /> : "Create"}
       </button>
     </div>
   );

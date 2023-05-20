@@ -42,11 +42,28 @@ export const listingRouter = createTRPCRouter({
   create: privateProcedure
     .input(
       z.object({
-        title: z.string().min(1).max(100),
-        description: z.string().min(1).max(1000),
-        price: z.number().min(1).max(1000000),
-        beds: z.number().min(1).max(100),
-        baths: z.number().min(1).max(100),
+        title: z
+          .string()
+          .min(1, { message: "Title is required" })
+          .max(100, { message: "Title must be less than 100 characters long" }),
+        description: z
+          .string()
+          .min(1, { message: "Description is required" })
+          .max(1000, {
+            message: "Description must be less than 1000 characters long",
+          }),
+        price: z
+          .number()
+          .min(1, { message: "Price must be greater than 0" })
+          .max(1000000, { message: "Price must be less than $1,000,000" }),
+        beds: z
+          .number()
+          .min(1, { message: "Beds must be greater than 0" })
+          .max(100, { message: "Beds must be less than 100" }),
+        baths: z
+          .number()
+          .min(1, { message: "Baths must be greater than 0" })
+          .max(100, { message: "Baths must be less than 100" }),
       })
     )
     .mutation(async ({ ctx, input }) => {
