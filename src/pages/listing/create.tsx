@@ -15,9 +15,9 @@ export default function CreateListing() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState(50);
-  const [beds, setBeds] = useState(0);
-  const [baths, setBaths] = useState(0);
-  const [country, setCountry] = useState("");
+  const [beds, setBeds] = useState(1);
+  const [baths, setBaths] = useState(1);
+  const [country, setCountry] = useState("France");
   const [city, setCity] = useState("");
 
   const ctx = api.useContext();

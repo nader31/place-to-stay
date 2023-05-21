@@ -82,6 +82,9 @@ export default function Header() {
               </SignInButton>
             )}
             <UserButton
+              userProfileMode="navigation"
+              userProfileUrl={`/${user?.id || ""}`}
+              afterSignOutUrl="/"
               appearance={{
                 elements: {
                   userButtonAvatarBox: "w-10 h-10",
