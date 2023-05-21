@@ -157,7 +157,7 @@ type ListingWithUser = RouterOutputs["listings"]["getAll"][number];
 const ListingView = (props: ListingWithUser) => {
   const { listing, author } = props;
   return (
-    <div key={listing.id}>
+    <div key={listing.id} className="overflow-hidden">
       {listing.images && listing.images.length > 0 && listing.images[0] ? (
         <Image
           src={listing.images[0].url}
@@ -173,7 +173,7 @@ const ListingView = (props: ListingWithUser) => {
         <p className="overflow-hidden text-ellipsis whitespace-nowrap font-semibold">
           {listing.title}
         </p>
-        <p className="overflow-hidden text-ellipsis whitespace-nowrap text-sm text-gray-400">
+        <p className="overflow-hidden overflow-ellipsis whitespace-nowrap text-sm text-gray-400">
           {listing.description}
         </p>
         <p className="mt-2">
