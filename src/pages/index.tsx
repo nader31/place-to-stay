@@ -81,7 +81,7 @@ const Listings = () => {
 
           <input
             className="peer h-full w-full pr-8 text-sm text-gray-700 outline-none"
-            type="text"
+            type="search"
             id="search"
             placeholder="Rechercher une ville, un logement..."
             onChange={(e) => setSearch(e.target.value)}
