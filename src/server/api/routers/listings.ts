@@ -42,7 +42,11 @@ export const listingRouter = createTRPCRouter({
           images: true,
         },
       });
-      return listing;
+      const user = filterUserForClient(
+        await clerkClient.users.getUser(listing?.userId || "")
+      );
+
+      return { listing, author: user };
     }),
 
   create: privateProcedure
