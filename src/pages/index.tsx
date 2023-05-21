@@ -37,7 +37,7 @@ export const ListingView = (props: ListingWithUser) => {
           {listing.description}
         </p>
         <p className="mt-2">
-          <span className="font-bold">{listing.price}€</span> night
+          <span className="font-bold">{listing.price}€</span> /night
         </p>
         {author && (
           <Link href={`/${author.id}`} className="mt-2 flex items-center gap-2">
@@ -73,14 +73,14 @@ const Listings = () => {
 
   return (
     <div>
-      <div className="mx-auto mb-10 max-w-md">
-        <div className="relative flex h-12 w-full items-center overflow-hidden rounded-full border bg-white">
-          <div className="grid h-full w-12 place-items-center text-gray-300">
+      <div className="mx-auto mb-10 max-w-2xl">
+        <div className="relative flex w-full items-center overflow-hidden rounded-full border bg-white">
+          <div className="grid h-full place-items-center p-5 text-gray-300">
             <MagnifyingGlassIcon className="h-5 w-5" />
           </div>
 
           <input
-            className="peer h-full w-full pr-2 text-sm text-gray-700 outline-none"
+            className="peer h-full w-full pr-8 text-sm text-gray-700 outline-none"
             type="text"
             id="search"
             placeholder="Rechercher une ville, un logement..."
@@ -108,6 +108,22 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <PageLayout>
+        <svg
+          version="1.1"
+          id="Calque_1"
+          xmlns="http://www.w3.org/2000/svg"
+          className="mx-auto mb-10 mt-5 hidden h-14 md:block"
+          viewBox="0 0 2000 2000"
+        >
+          <path
+            d="M1817.6,534.1L1484,200.5c-11.6-11.6-23.6-22.8-35.9-33.5C1323.7,59,1166.4,0,1000,0v0C833.6,0,676.3,59,551.9,167
+	c-12.3,10.6-24.3,21.8-35.9,33.5L182.4,534.1C65.6,650.9,0,809.3,0,974.5V1189v328.4C0,1783.9,216.1,2000,482.7,2000H1000l0,0h517.3
+	c266.6,0,482.7-216.1,482.7-482.7V1189V974.5C2000,809.3,1934.4,650.9,1817.6,534.1z M1665.9,1517.3c0,82.1-66.5,148.6-148.6,148.6
+	h-231.6v-296.7c0-157.8-127.9-285.7-285.7-285.7h0l0,0h0c-157.8,0-285.7,127.9-285.7,285.7v296.7H482.7
+	c-82.1,0-148.6-66.5-148.6-148.6v-473.6c0-121,48.1-237,133.6-322.5l284.6-284.6c66.2-66.1,154.2-102.6,247.8-102.6v0
+	c93.6,0,181.6,36.5,247.8,102.6l284.6,284.6c85.5,85.5,133.6,201.5,133.6,322.5V1517.3z"
+          />
+        </svg>
         <h1 className="mb-10 text-center text-5xl font-bold">
           Find your place to <span className="text-rose-600">stay</span>
         </h1>

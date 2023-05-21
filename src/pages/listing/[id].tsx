@@ -153,7 +153,7 @@ const BookingView = (props: { data: SingleListing }) => {
           <h2 className="text-2xl font-light text-gray-500">
             <span className="text-3xl font-bold text-black">
               {data.listing.price}€
-            </span>
+            </span>{" "}
             /night
           </h2>
         </div>
