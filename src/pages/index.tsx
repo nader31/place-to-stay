@@ -80,9 +80,6 @@ const Listings = () => {
           </div>
 
           <input
-            style={{
-              WebkitTextSizeAdjust: "none",
-            }}
             className="peer h-full w-full pr-8 text-sm text-gray-700 outline-none"
             type="search"
             id="search"
