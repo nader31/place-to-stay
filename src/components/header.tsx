@@ -20,7 +20,7 @@ export default function Header() {
   if (!userLoaded) return <div />;
 
   return (
-    <Popover className="sticky top-0 w-full bg-white/90 backdrop-blur-lg">
+    <Popover className="sticky top-0 w-full bg-white">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 sm:px-6 md:justify-start md:space-x-10 xl:px-0">
         <div>
           <Link href="/" className="flex py-2">
