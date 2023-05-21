@@ -19,6 +19,7 @@ import clsx from "clsx";
 import moment from "moment";
 import Datepicker from "react-tailwindcss-datepicker";
 import type { DateValueType } from "react-tailwindcss-datepicker/dist/types";
+import Link from "next/link";
 
 type SingleListing = RouterOutputs["listings"]["getById"];
 
@@ -151,7 +152,7 @@ const BookingView = (props: { data: SingleListing }) => {
         <div className="flex justify-around">
           <h2 className="text-2xl font-light text-gray-500">
             <span className="text-3xl font-bold text-black">
-              ${data.listing.price}
+              {data.listing.price}€
             </span>
             /night
           </h2>
@@ -193,13 +194,15 @@ const DescriptionView = (props: { data: SingleListing }) => {
             Posted {moment(data.listing.createdAt).fromNow()}
           </p>
         </div>
-        <Image
-          src={data.author.profileImageURL}
-          className="h-16 w-16 rounded-full"
-          alt="Profile image"
-          width={50}
-          height={50}
-        />
+        <Link href={`/${data.author.id}`}>
+          <Image
+            src={data.author.profileImageURL}
+            className="h-16 w-16 rounded-full"
+            alt="Profile image"
+            width={50}
+            height={50}
+          />
+        </Link>
       </div>
       <div className="mt-8">{data.listing.description}</div>
     </div>
@@ -220,7 +223,7 @@ const SingleListingPage: NextPage<PageProps> = (
   return (
     <>
       <Head>
-        <title>Listing</title>
+        <title>{data.listing.title}</title>
       </Head>
       <PageLayout>
         <div>

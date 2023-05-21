@@ -65,7 +65,7 @@ export const listingRouter = createTRPCRouter({
         price: z
           .number()
           .min(1, { message: "Price must be greater than 0" })
-          .max(1000000, { message: "Price must be less than $1,000,000" }),
+          .max(1000000, { message: "Price must be less than 1.000.000€" }),
         beds: z
           .number()
           .min(1, { message: "Beds must be greater than 0" })
@@ -74,6 +74,8 @@ export const listingRouter = createTRPCRouter({
           .number()
           .min(1, { message: "Baths must be greater than 0" })
           .max(100, { message: "Baths must be less than 100" }),
+        country: z.string().min(1, { message: "Country is required" }),
+        city: z.string().min(1, { message: "City is required" }),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -86,6 +88,8 @@ export const listingRouter = createTRPCRouter({
           price: input.price,
           beds: input.beds,
           baths: input.baths,
+          country: input.country,
+          city: input.city,
           userId,
         },
       });

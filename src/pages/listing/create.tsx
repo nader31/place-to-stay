@@ -1,18 +1,24 @@
 import { useUser } from "@clerk/nextjs";
-import { useState } from "react";
+import { Listbox, Transition } from "@headlessui/react";
+import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/24/outline";
+import { Fragment, useState } from "react";
 import toast from "react-hot-toast";
+import countryList from "react-select-country-list";
 import PageLayout from "~/components/layout";
 import LoadingSpinner from "~/components/loading";
 import { api } from "~/utils/api";
+import RangeSlider from "~/components/rangeSlider";
 
 export default function CreateListing() {
   const { user } = useUser();
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [price, setPrice] = useState(0);
+  const [price, setPrice] = useState(50);
   const [beds, setBeds] = useState(0);
   const [baths, setBaths] = useState(0);
+  const [country, setCountry] = useState("");
+  const [city, setCity] = useState("");
 
   const ctx = api.useContext();
 
@@ -42,6 +48,7 @@ export default function CreateListing() {
     setPrice(0);
     setBeds(0);
     setBaths(0);
+    setCountry("");
   };
 
   const handleSubmit = () => {
@@ -51,16 +58,92 @@ export default function CreateListing() {
       price,
       beds,
       baths,
+      country,
+      city,
     });
   };
 
+  const options = countryList().getData();
+
   return (
     <PageLayout>
-      <div className="mb-8 flex flex-col gap-2 rounded-md border p-4">
+      <div className="mb-8 flex flex-col gap-2 rounded-2xl border p-4 shadow-lg">
         <p className="text-lg font-semibold">Create a new listing</p>
         <p className="text-sm text-gray-400">
           Create a new listing to share with others
         </p>
+
+        <div className="flex items-center gap-3">
+          <Listbox value={country} onChange={setCountry}>
+            <div className="relative w-full">
+              <Listbox.Button className="relative w-full cursor-default rounded-md border bg-white py-2 pl-3 pr-10 text-left focus:outline-none">
+                {country ? (
+                  <span className="block truncate">{country}</span>
+                ) : (
+                  <span className="block truncate text-gray-500">
+                    Select a country
+                  </span>
+                )}
+
+                <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                  <ChevronUpDownIcon
+                    className="h-5 w-5 text-gray-400"
+                    aria-hidden="true"
+                  />
+                </span>
+              </Listbox.Button>
+              <Transition
+                as={Fragment}
+                leave="transition ease-in duration-100"
+                leaveFrom="opacity-100"
+                leaveTo="opacity-0"
+              >
+                <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+                  {options.map((country, index) => (
+                    <Listbox.Option
+                      key={index}
+                      className={({ active }) =>
+                        `relative cursor-default select-none py-2 pl-10 pr-4 ${
+                          active ? "bg-gray-100 text-black" : "text-gray-900"
+                        }`
+                      }
+                      value={country.label}
+                    >
+                      {({ selected }) => (
+                        <>
+                          <span
+                            className={`block truncate ${
+                              selected ? "font-medium" : "font-normal"
+                            }`}
+                          >
+                            {country.label}
+                          </span>
+                          {selected ? (
+                            <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-rose-600">
+                              <CheckIcon
+                                className="h-5 w-5"
+                                aria-hidden="true"
+                              />
+                            </span>
+                          ) : null}
+                        </>
+                      )}
+                    </Listbox.Option>
+                  ))}
+                </Listbox.Options>
+              </Transition>
+            </div>
+          </Listbox>
+          <input
+            type="text"
+            placeholder="City"
+            className="w-full rounded-md border p-2"
+            value={city}
+            onChange={(e) => setCity(e.target.value)}
+            disabled={isCreating}
+            autoComplete="address-level2"
+          />
+        </div>
         <input
           type="text"
           placeholder="Title"
@@ -76,14 +159,18 @@ export default function CreateListing() {
           onChange={(e) => setDescription(e.target.value)}
           disabled={isCreating}
         ></textarea>
-        <input
-          type="number"
-          placeholder="Price"
-          className="rounded-md border p-2"
-          value={price}
-          onChange={(e) => setPrice(parseInt(e.target.value))}
-          disabled={isCreating}
-        />
+        <div className="py-4">
+          <h3 className="mb-4 w-full text-center text-3xl font-bold">
+            {price}€<span className="text-xl font-normal"> /night</span>
+          </h3>
+          <RangeSlider
+            className="h-6 w-full"
+            max={500}
+            step={10}
+            value={price}
+            onChange={setPrice}
+          />
+        </div>
         <div className="flex gap-3">
           <div className="flex w-full items-center gap-3">
             <svg
@@ -128,7 +215,7 @@ export default function CreateListing() {
         </div>
         <button
           onClick={handleSubmit}
-          className="flex items-center justify-center rounded-lg bg-black px-4 py-2 font-medium text-white"
+          className="mt-8 flex items-center justify-center rounded-lg bg-black px-4 py-3 font-medium text-white"
           disabled={isCreating}
         >
           {isCreating ? (

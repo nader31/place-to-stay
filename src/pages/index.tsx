@@ -35,7 +35,7 @@ const ListingView = (props: ListingWithUser) => {
           {listing.description}
         </p>
         <p className="mt-2">
-          <span className="font-bold">${listing.price}</span> night
+          <span className="font-bold">{listing.price}€</span> night
         </p>
         {author && (
           <Link href={`/${author.id}`} className="mt-2 flex items-center gap-2">

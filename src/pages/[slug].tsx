@@ -40,8 +40,6 @@ const ProfilePage: NextPage<PageProps> = (
       </main>
     );
 
-  console.log(id);
-
   return (
     <>
       <Head>
