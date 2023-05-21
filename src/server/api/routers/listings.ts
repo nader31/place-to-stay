@@ -31,6 +31,38 @@ export const listingRouter = createTRPCRouter({
     }));
   }),
 
+  getAllByUser: publicProcedure
+    .input(
+      z.object({
+        userId: z.string(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const listings = await ctx.prisma.listing.findMany({
+        take: 100,
+        orderBy: {
+          createdAt: "desc",
+        },
+        where: {
+          userId: input.userId,
+        },
+        include: {
+          images: true,
+        },
+      });
+      const users = (
+        await clerkClient.users.getUserList({
+          userId: listings.map((listing) => listing.userId || ""),
+          limit: 100,
+        })
+      ).map(filterUserForClient);
+
+      return listings.map((listing) => ({
+        listing,
+        author: users.find((user) => user.id === listing.userId),
+      }));
+    }),
+
   getById: publicProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }) => {

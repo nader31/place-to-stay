@@ -6,9 +6,11 @@ import Image from "next/image";
 import { LoadingPage } from "~/components/loading";
 import Link from "next/link";
 import PageLayout from "~/components/layout";
+import { MagnifyingGlassIcon } from "@heroicons/react/24/solid";
+import { useState } from "react";
 
-type ListingWithUser = RouterOutputs["listings"]["getAll"][number];
-const ListingView = (props: ListingWithUser) => {
+export type ListingWithUser = RouterOutputs["listings"]["getAll"][number];
+export const ListingView = (props: ListingWithUser) => {
   const { listing, author } = props;
   return (
     <Link
@@ -55,17 +57,44 @@ const ListingView = (props: ListingWithUser) => {
 };
 
 const Listings = () => {
+  const [search, setSearch] = useState("");
   const { data, isLoading: listingsLoading } = api.listings.getAll.useQuery();
 
   if (listingsLoading) return <LoadingPage />;
 
   if (!data) return <div>Something went wrong</div>;
 
+  const filteredData = data.filter(
+    (item) =>
+      item?.listing?.city?.toLowerCase().includes(search.toLowerCase()) ||
+      item?.listing?.country?.toLowerCase().includes(search.toLowerCase()) ||
+      item?.listing?.title.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
-    <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
-      {data.map((fullListing) => (
-        <ListingView {...fullListing} key={fullListing.listing.id} />
-      ))}
+    <div>
+      <div className="mx-auto mb-10 max-w-md">
+        <div className="relative flex h-12 w-full items-center overflow-hidden rounded-full border bg-white">
+          <div className="grid h-full w-12 place-items-center text-gray-300">
+            <MagnifyingGlassIcon className="h-5 w-5" />
+          </div>
+
+          <input
+            className="peer h-full w-full pr-2 text-sm text-gray-700 outline-none"
+            type="text"
+            id="search"
+            placeholder="Rechercher une ville, un logement..."
+            onChange={(e) => setSearch(e.target.value)}
+            value={search}
+            autoFocus
+          />
+        </div>
+      </div>
+      <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
+        {filteredData.map((fullListing) => (
+          <ListingView {...fullListing} key={fullListing.listing.id} />
+        ))}
+      </div>
     </div>
   );
 };
@@ -79,6 +108,9 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <PageLayout>
+        <h1 className="mb-10 text-center text-5xl font-bold">
+          Find your place to <span className="text-rose-600">stay</span>
+        </h1>
         <Listings />
       </PageLayout>
     </>

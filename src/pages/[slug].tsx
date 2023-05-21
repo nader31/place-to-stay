@@ -6,6 +6,27 @@ import type {
 } from "next";
 import Head from "next/head";
 import { api } from "~/utils/api";
+import { LoadingPage } from "~/components/loading";
+
+const UserListingView = (props: { userId: string }) => {
+  const { data, isLoading: listingsLoading } =
+    api.listings.getAllByUser.useQuery({ userId: props.userId });
+
+  if (listingsLoading) return <LoadingPage />;
+
+  if (!data) return <div>Something went wrong</div>;
+
+  return (
+    <>
+      <h3 className="mb-5 font-medium">User&apos;s Listings</h3>
+      <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
+        {data.map((fullListing) => (
+          <ListingView {...fullListing} key={fullListing.listing.id} />
+        ))}
+      </div>
+    </>
+  );
+};
 
 type PageProps = InferGetStaticPropsType<typeof getStaticProps>;
 
@@ -46,7 +67,25 @@ const ProfilePage: NextPage<PageProps> = (
         <title>{data.name}</title>
       </Head>
       <PageLayout>
-        <div>{data.name}</div>
+        <div>
+          <Image
+            src={data.profileImageURL}
+            alt="Profile image"
+            width={200}
+            height={200}
+            className="mx-auto flex rounded-full"
+          />
+          <h2 className="mb-1 mt-5 text-center text-2xl font-bold">
+            {data.name}
+          </h2>
+          <div className="mb-5 flex w-full justify-center">
+            <div className="flex items-center gap-1">
+              <StarIcon className="h-5 w-5" />
+              <span className="text-lg font-medium">4.5</span>
+            </div>
+          </div>
+          <UserListingView userId={data.id} />
+        </div>
       </PageLayout>
     </>
   );
@@ -58,12 +97,15 @@ import { appRouter } from "~/server/api/root";
 import superjson from "superjson";
 import PageLayout from "~/components/layout";
 import Link from "next/link";
+import Image from "next/image";
+import { ListingView } from ".";
+import { StarIcon } from "@heroicons/react/24/solid";
 
 export const getStaticProps = async (context: GetStaticPropsContext) => {
   const helpers = createServerSideHelpers({
     router: appRouter,
     ctx: { prisma, userId: null },
-    transformer: superjson, // optional - adds superjson serialization
+    transformer: superjson,
   });
 
   const slug = context.params?.slug as string;
