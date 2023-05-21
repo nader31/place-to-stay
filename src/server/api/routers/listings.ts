@@ -1,19 +1,11 @@
 import { clerkClient } from "@clerk/nextjs";
-import type { User } from "@clerk/nextjs/server";
 import { z } from "zod";
 import {
   createTRPCRouter,
   privateProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
-
-const filterUserForClient = (user: User) => {
-  return {
-    id: user.id,
-    name: user.username || `${user.firstName || ""} ${user.lastName || ""}`,
-    profileImageURL: user.profileImageUrl,
-  };
-};
+import { filterUserForClient } from "~/server/helpers/filterUserForClient";
 
 export const listingRouter = createTRPCRouter({
   getAll: publicProcedure.query(async ({ ctx }) => {

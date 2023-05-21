@@ -6,6 +6,7 @@ import {
   XMarkIcon,
 } from "@heroicons/react/24/outline";
 import Image from "next/image";
+import Link from "next/link";
 import React, { Fragment } from "react";
 import { api } from "~/utils/api";
 
@@ -16,13 +17,13 @@ export default function Header() {
 
   const { signOut } = useClerk();
 
-  if (!userLoaded) return <div></div>;
+  if (!userLoaded) return <div />;
 
   return (
-    <Popover className="relative bg-white">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-6 sm:px-6 md:justify-start md:space-x-10 xl:px-0">
+    <Popover className="sticky top-0 w-full bg-white/90 backdrop-blur-lg">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 sm:px-6 md:justify-start md:space-x-10 xl:px-0">
         <div>
-          <a href="#" className="flex py-2">
+          <Link href="/" className="flex py-2">
             <span className="sr-only">Workflow</span>
             <svg
               className="h-7 w-7"
@@ -35,7 +36,7 @@ export default function Header() {
                 fill="black"
               />
             </svg>
-          </a>
+          </Link>
         </div>
         <div className="-my-2 -mr-2 md:hidden">
           <Popover.Button className="inline-flex items-center justify-center rounded-md bg-white p-2 text-black hover:bg-gray-100 focus:outline-none">
@@ -99,7 +100,7 @@ export default function Header() {
           <div className="divide-y-2 divide-gray-50 rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5">
             <div className="px-5 pb-6 pt-5">
               <div className="flex items-center justify-between">
-                <div>
+                <Link href={"/"}>
                   <svg
                     className="h-7 w-7"
                     viewBox="0 0 108 108"
@@ -111,7 +112,7 @@ export default function Header() {
                       fill="black"
                     />
                   </svg>
-                </div>
+                </Link>
                 <div className="-mr-2">
                   <Popover.Button className="inline-flex items-center justify-center rounded-md bg-white p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-500 focus:outline-none">
                     <span className="sr-only">Close menu</span>
