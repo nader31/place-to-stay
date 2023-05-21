@@ -1,7 +1,12 @@
 import type { PropsWithChildren } from "react";
 import Header from "./header";
+import { useUser } from "@clerk/nextjs";
 
 export default function PageLayout(props: PropsWithChildren) {
+  const { isLoaded: userLoaded } = useUser();
+
+  if (!userLoaded) return <div />;
+
   return (
     <div>
       <Header />

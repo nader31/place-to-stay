@@ -31,6 +31,20 @@ export const listingRouter = createTRPCRouter({
     }));
   }),
 
+  getById: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const listing = await ctx.prisma.listing.findUnique({
+        where: {
+          id: input.id,
+        },
+        include: {
+          images: true,
+        },
+      });
+      return listing;
+    }),
+
   create: privateProcedure
     .input(
       z.object({
