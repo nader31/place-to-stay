@@ -45,7 +45,7 @@ export default function Header() {
           </Popover.Button>
         </div>
         <div className="hidden md:flex md:flex-1 md:items-center md:justify-between">
-          <Popover.Group as="nav" className="flex space-x-10">
+          <Popover.Group as="nav" className="flex items-center space-x-10">
             <a
               href="#"
               className="text-base font-medium text-gray-500 hover:text-gray-900"
@@ -64,6 +64,14 @@ export default function Header() {
             >
               Unique Stays
             </a>
+            {isSignedIn && (
+              <Link
+                href="/listing/create"
+                className="my-auto rounded-full bg-black px-3 py-1 text-base font-medium text-white"
+              >
+                Add Listing
+              </Link>
+            )}
           </Popover.Group>
           <div className="flex items-center md:ml-12">
             {!isSignedIn && (
@@ -102,7 +110,7 @@ export default function Header() {
               <div className="flex items-center justify-between">
                 <Link href={"/"}>
                   <svg
-                    className="h-7 w-7"
+                    className="h-7 w-7 outline-none"
                     viewBox="0 0 108 108"
                     fill="currentColor"
                     xmlns="http://www.w3.org/2000/svg"
