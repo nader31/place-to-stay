@@ -213,7 +213,7 @@ const Listings = () => {
 };
 
 const Home: NextPage = () => {
-  const { isLoaded: userLoaded, isSignedIn } = useUser();
+  const { user, isLoaded: userLoaded, isSignedIn } = useUser();
 
   api.listings.getAll.useQuery();
 
@@ -247,7 +247,7 @@ const Home: NextPage = () => {
             </a>
           </div>
           <div className="-my-2 -mr-2 md:hidden">
-            <Popover.Button className="inline-flex items-center justify-center rounded-md bg-white p-2 text-black hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-rose-500">
+            <Popover.Button className="inline-flex items-center justify-center rounded-md bg-white p-2 text-black hover:bg-gray-100 focus:outline-none">
               <span className="sr-only">Open menu</span>
               <Bars3Icon className="h-6 w-6" aria-hidden="true" />
             </Popover.Button>
@@ -275,9 +275,11 @@ const Home: NextPage = () => {
             </Popover.Group>
             <div className="flex items-center md:ml-12">
               {!isSignedIn && (
-                <div className="ml-8 inline-flex items-center justify-center rounded-full border border-transparent bg-black px-4 py-1 font-medium text-white shadow-sm">
-                  <SignInButton />
-                </div>
+                <SignInButton mode="redirect">
+                  <button className="ml-8 inline-flex items-center justify-center rounded-full border border-transparent bg-black px-4 py-1 font-medium text-white shadow-sm">
+                    Sign in
+                  </button>
+                </SignInButton>
               )}
               <UserButton
                 appearance={{
@@ -320,13 +322,32 @@ const Home: NextPage = () => {
                     </svg>
                   </div>
                   <div className="-mr-2">
-                    <Popover.Button className="inline-flex items-center justify-center rounded-md bg-white p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-rose-500">
+                    <Popover.Button className="inline-flex items-center justify-center rounded-md bg-white p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-500 focus:outline-none">
                       <span className="sr-only">Close menu</span>
                       <XMarkIcon className="h-6 w-6" aria-hidden="true" />
                     </Popover.Button>
                   </div>
                 </div>
               </div>
+              {isSignedIn && (
+                <div className="flex items-center gap-4 px-5 py-6">
+                  <Image
+                    className="h-12 w-12 rounded-full"
+                    src={user.profileImageUrl}
+                    alt="Profile image"
+                    width={48}
+                    height={48}
+                  />
+                  <div>
+                    <p className="text-lg font-medium">{user?.fullName}</p>
+                    {user?.primaryEmailAddress && (
+                      <p className="text-sm">
+                        {user?.primaryEmailAddress.emailAddress}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
               <div className="px-5 py-6">
                 <div className="grid grid-cols-2 gap-4">
                   <a
@@ -347,17 +368,19 @@ const Home: NextPage = () => {
                     href="#"
                     className="text-base font-medium text-gray-900 hover:text-gray-700"
                   >
-                    Uniaue Stays
+                    Unique Stays
                   </a>
                 </div>
                 <div className="mt-6">
                   {!isSignedIn ? (
-                    <div className="flex w-full items-center justify-center rounded-md border border-transparent bg-black px-4 py-2 text-base font-medium text-white shadow-sm">
-                      <SignInButton />
-                    </div>
+                    <SignInButton mode="redirect">
+                      <button className="flex w-full items-center justify-center rounded-md border border-transparent bg-black px-4 py-2 text-base font-medium text-white shadow-sm">
+                        Sign in
+                      </button>
+                    </SignInButton>
                   ) : (
                     <button
-                      className="flex items-center text-gray-500 hover:text-gray-700"
+                      className="flex w-full items-center justify-center rounded-md border border-transparent bg-black px-4 py-2 text-base font-medium text-white shadow-sm"
                       // eslint-disable-next-line @typescript-eslint/no-misused-promises
                       onClick={() => signOut()}
                     >
