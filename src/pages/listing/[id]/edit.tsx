@@ -38,6 +38,7 @@ const SingleListingPage: NextPage<PageProps> = (
   const [price, setPrice] = useState(data?.listing?.price || 0);
   const [beds, setBeds] = useState(data?.listing?.beds || 0);
   const [baths, setBaths] = useState(data?.listing?.baths || 0);
+  const [city, setCity] = useState(data?.listing?.city || "");
   const [images, setImages] = useState<string[]>(
     data?.listing?.images.map((image) => image.url) || []
   );
@@ -85,6 +86,7 @@ const SingleListingPage: NextPage<PageProps> = (
       price,
       beds,
       baths,
+      city,
       images: images.map((image) => ({ url: image })),
       id: data?.listing?.id || "",
     });
@@ -119,7 +121,21 @@ const SingleListingPage: NextPage<PageProps> = (
               </Link>
             )}
           </div>
+
           <div className="mt-10 flex w-full flex-col gap-3">
+            <div className="flex flex-col gap-3">
+              <label htmlFor="city" className="font-medium">
+                City
+              </label>
+              <input
+                placeholder="Description"
+                className="max-w-sm rounded-md border p-2"
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+                disabled={isUpdating}
+                id="city"
+              />
+            </div>
             <div className="flex flex-col gap-3">
               <label htmlFor="description" className="font-medium">
                 Description

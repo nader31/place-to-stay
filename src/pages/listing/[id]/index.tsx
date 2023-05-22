@@ -233,7 +233,12 @@ const SingleListingPage: NextPage<PageProps> = (
       <PageLayout>
         <div>
           <div className="flex items-center justify-between">
-            <h1 className="text-4xl font-semibold">{data.listing.title}</h1>
+            <div>
+              <h1 className="text-4xl font-semibold">{data.listing.title}</h1>
+              <h2 className="text-xl text-gray-500">
+                {data.listing.city}, {data.listing.country}
+              </h2>
+            </div>
             {isOwner && (
               <Link
                 href={`/listing/${data.listing.id}/edit`}

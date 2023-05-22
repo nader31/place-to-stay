@@ -164,6 +164,7 @@ export const listingRouter = createTRPCRouter({
           .number()
           .min(1, { message: "Baths must be greater than 0" })
           .max(100, { message: "Baths must be less than 100" }),
+        city: z.string().min(1, { message: "City is required" }),
         images: z
           .array(
             z.object({
@@ -184,6 +185,7 @@ export const listingRouter = createTRPCRouter({
           price: input.price,
           beds: input.beds,
           baths: input.baths,
+          city: input.city,
           images: {
             deleteMany: {},
             create: input.images,
