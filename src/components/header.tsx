@@ -133,23 +133,25 @@ export default function Header() {
               </div>
             </div>
             {isSignedIn && (
-              <div className="flex items-center gap-4 px-5 py-6">
-                <Image
-                  className="h-12 w-12 rounded-full"
-                  src={user.profileImageUrl}
-                  alt="Profile image"
-                  width={48}
-                  height={48}
-                />
-                <div>
-                  <p className="text-lg font-medium">{user?.fullName}</p>
-                  {user?.primaryEmailAddress && (
-                    <p className="text-sm">
-                      {user?.primaryEmailAddress.emailAddress}
-                    </p>
-                  )}
+              <Link href={`/` + user?.id || ""}>
+                <div className="flex items-center gap-4 px-5 py-6">
+                  <Image
+                    className="h-12 w-12 rounded-full"
+                    src={user.profileImageUrl}
+                    alt="Profile image"
+                    width={48}
+                    height={48}
+                  />
+                  <div>
+                    <p className="text-lg font-medium">{user?.fullName}</p>
+                    {user?.primaryEmailAddress && (
+                      <p className="text-sm">
+                        {user?.primaryEmailAddress.emailAddress}
+                      </p>
+                    )}
+                  </div>
                 </div>
-              </div>
+              </Link>
             )}
             <div className="px-5 py-6">
               <div className="grid grid-cols-2 gap-4">

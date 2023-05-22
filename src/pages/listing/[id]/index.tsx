@@ -20,6 +20,8 @@ import moment from "moment";
 import Datepicker from "react-tailwindcss-datepicker";
 import type { DateValueType } from "react-tailwindcss-datepicker/dist/types";
 import Link from "next/link";
+import { useUser } from "@clerk/nextjs";
+import { PencilIcon } from "@heroicons/react/24/outline";
 
 type SingleListing = RouterOutputs["listings"]["getById"];
 
@@ -30,6 +32,7 @@ const ImageGallery = (props: { data: SingleListing }) => {
   }
   const images = data.listing.images;
   const title = data.listing.title;
+
   return (
     <div className="my-10 w-full overflow-hidden rounded-2xl">
       {images && images[0] && (
@@ -217,8 +220,10 @@ const SingleListingPage: NextPage<PageProps> = (
   const { data } = api.listings.getById.useQuery({
     id: props.id,
   });
-
+  const { user } = useUser();
   if (!data?.listing || !data?.author) return <div />;
+
+  const isOwner = user?.id === data.listing.userId ? true : false;
 
   return (
     <>
@@ -227,7 +232,17 @@ const SingleListingPage: NextPage<PageProps> = (
       </Head>
       <PageLayout>
         <div>
-          <h1 className="text-4xl font-semibold">{data.listing.title}</h1>
+          <div className="flex items-center justify-between">
+            <h1 className="text-4xl font-semibold">{data.listing.title}</h1>
+            {isOwner && (
+              <Link
+                href={`/listing/${data.listing.id}/edit`}
+                className="rounded-full p-2 hover:bg-gray-50"
+              >
+                <PencilIcon className="h-6 w-6" />
+              </Link>
+            )}
+          </div>
           <div className="mt-2 flex gap-3">
             <div className="flex items-center gap-2">
               <StarIcon className="h-5 w-5" />

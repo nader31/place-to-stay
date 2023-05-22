@@ -164,8 +164,6 @@ export const listingRouter = createTRPCRouter({
           .number()
           .min(1, { message: "Baths must be greater than 0" })
           .max(100, { message: "Baths must be less than 100" }),
-        country: z.string().min(1, { message: "Country is required" }),
-        city: z.string().min(1, { message: "City is required" }),
         images: z
           .array(
             z.object({
@@ -176,8 +174,6 @@ export const listingRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const userId = ctx.userId;
-
       const listing = await ctx.prisma.listing.update({
         where: {
           id: input.id,
@@ -188,13 +184,25 @@ export const listingRouter = createTRPCRouter({
           price: input.price,
           beds: input.beds,
           baths: input.baths,
-          country: input.country,
-          city: input.city,
-          userId,
           images: {
             deleteMany: {},
             create: input.images,
           },
+        },
+      });
+      return listing;
+    }),
+
+  delete: privateProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const userId = ctx.userId;
+      if (!userId) {
+        throw new Error("Not authorized");
+      }
+      const listing = await ctx.prisma.listing.delete({
+        where: {
+          id: input.id,
         },
       });
       return listing;
