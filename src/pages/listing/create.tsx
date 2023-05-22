@@ -19,6 +19,7 @@ export default function CreateListing() {
   const [baths, setBaths] = useState(1);
   const [country, setCountry] = useState("France");
   const [city, setCity] = useState("");
+  const [images, setImages] = useState<string[]>([]);
 
   const ctx = api.useContext();
 
@@ -45,10 +46,12 @@ export default function CreateListing() {
   const handleReset = () => {
     setTitle("");
     setDescription("");
-    setPrice(0);
-    setBeds(0);
-    setBaths(0);
-    setCountry("");
+    setPrice(50);
+    setBeds(1);
+    setBaths(1);
+    setCountry("France");
+    setCity("");
+    setImages([]);
   };
 
   const handleSubmit = () => {
@@ -60,6 +63,7 @@ export default function CreateListing() {
       baths,
       country,
       city,
+      images: images.map((image) => ({ url: image })),
     });
   };
 
@@ -213,6 +217,26 @@ export default function CreateListing() {
             />
           </div>
         </div>
+        <p className="mt-3 font-medium">Add images</p>
+        {/* eslint-disable-next-line @typescript-eslint/no-unsafe-assignment */}
+        {[...Array(images.filter((image) => image !== "").length + 1)].map(
+          (_, i) => (
+            <div key={i} className="relative">
+              <input
+                type="text"
+                placeholder="Image URL"
+                className="w-full rounded-md border p-2"
+                value={images[i] || ""}
+                onChange={(e) => {
+                  const newImages = [...images];
+                  newImages[i] = e.target.value;
+                  setImages(newImages.filter((image) => image !== ""));
+                }}
+                disabled={isCreating}
+              />
+            </div>
+          )
+        )}
         <button
           onClick={handleSubmit}
           className="mt-8 flex items-center justify-center rounded-lg bg-black px-4 py-3 font-medium text-white"
