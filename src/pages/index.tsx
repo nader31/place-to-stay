@@ -31,10 +31,10 @@ export const ListingView = (props: ListingWithUser) => {
       )}
       <div className="py-2">
         <p className="overflow-hidden text-ellipsis whitespace-nowrap font-semibold">
-          {listing.title}
+          {listing.city}, {listing.country}
         </p>
         <p className="overflow-hidden overflow-ellipsis whitespace-nowrap text-sm text-gray-400">
-          {listing.description}
+          {listing.title}
         </p>
         <p className="mt-2">
           <span className="font-bold">{listing.price}€</span> /night

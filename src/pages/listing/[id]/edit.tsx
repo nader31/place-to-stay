@@ -6,7 +6,7 @@ import type {
   NextPage,
 } from "next";
 import Head from "next/head";
-import React, { useState } from "react";
+import React, { Fragment, useState } from "react";
 import PageLayout from "~/components/layout";
 import { appRouter } from "~/server/api/root";
 import { prisma } from "~/server/db";
@@ -19,6 +19,7 @@ import toast from "react-hot-toast";
 import RangeSlider from "~/components/rangeSlider";
 import LoadingSpinner from "~/components/loading";
 import { useRouter } from "next/router";
+import { Dialog, Transition } from "@headlessui/react";
 
 type PageProps = InferGetStaticPropsType<typeof getStaticProps>;
 
@@ -41,6 +42,8 @@ const SingleListingPage: NextPage<PageProps> = (
     data?.listing?.images.map((image) => image.url) || []
   );
 
+  const [isOpen, setIsOpen] = useState(false);
+
   const router = useRouter();
 
   const { mutate, isLoading: isUpdating } = api.listings.update.useMutation({
@@ -60,6 +63,17 @@ const SingleListingPage: NextPage<PageProps> = (
     },
   });
 
+  const { mutate: deleteListing, isLoading: isDeleting } =
+    api.listings.delete.useMutation({
+      onSuccess: () => {
+        toast.success(`Listing deleted`);
+        void router.push(`/${user?.id || ""}`);
+      },
+      onError: () => {
+        toast.error("Something went wrong");
+      },
+    });
+
   if (!data?.listing || !data?.author) return <div />;
 
   const isOwner = user?.id === data.listing.userId ? true : false;
@@ -74,6 +88,10 @@ const SingleListingPage: NextPage<PageProps> = (
       images: images.map((image) => ({ url: image })),
       id: data?.listing?.id || "",
     });
+  };
+
+  const handleDelete = () => {
+    deleteListing({ id: data?.listing?.id || "" });
   };
 
   return (
@@ -189,21 +207,93 @@ const SingleListingPage: NextPage<PageProps> = (
                 </div>
               )
             )}
-            <button
-              onClick={handleSubmit}
-              className="mt-8 flex items-center justify-center rounded-lg bg-black px-4 py-3 font-medium text-white"
-              disabled={isUpdating}
-            >
-              {isUpdating ? (
-                <div className="p-1">
-                  <LoadingSpinner color="white" />
-                </div>
-              ) : (
-                "Update"
-              )}
-            </button>
+            <div className="mt-8 flex gap-3">
+              <button
+                onClick={() => setIsOpen(true)}
+                className="flex w-full items-center justify-center rounded-lg bg-red-600 px-4 py-3 font-medium text-white"
+                disabled={isDeleting}
+              >
+                {isDeleting ? (
+                  <div className="p-1">
+                    <LoadingSpinner color="white" />
+                  </div>
+                ) : (
+                  "Delete"
+                )}
+              </button>
+              <button
+                onClick={handleSubmit}
+                className="flex w-full items-center justify-center rounded-lg bg-black px-4 py-3 font-medium text-white"
+                disabled={isUpdating}
+              >
+                {isUpdating ? (
+                  <div className="p-1">
+                    <LoadingSpinner color="white" />
+                  </div>
+                ) : (
+                  "Update"
+                )}
+              </button>
+            </div>
           </div>
         </div>
+        <Transition appear show={isOpen} as={Fragment}>
+          <Dialog
+            open={isOpen}
+            onClose={() => setIsOpen(false)}
+            className="relative z-50"
+          >
+            <Transition.Child
+              as={Fragment}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0"
+              enterTo="opacity-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100"
+              leaveTo="opacity-0"
+            >
+              <div className="fixed inset-0 bg-black bg-opacity-25" />
+            </Transition.Child>
+            <div className="fixed inset-0 overflow-y-auto">
+              <div className="flex min-h-full items-center justify-center p-4 text-center">
+                <Transition.Child
+                  as={Fragment}
+                  enter="ease-out duration-300"
+                  enterFrom="opacity-0 scale-95"
+                  enterTo="opacity-100 scale-100"
+                  leave="ease-in duration-200"
+                  leaveFrom="opacity-100 scale-100"
+                  leaveTo="opacity-0 scale-95"
+                >
+                  <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                    <Dialog.Title
+                      as="h3"
+                      className="text-lg font-medium leading-6 text-gray-900"
+                    >
+                      Delete listing
+                    </Dialog.Title>
+                    <div className="mt-2">
+                      <p className="text-sm text-gray-500">
+                        Are you sure you want to delete this listing? This
+                        action cannot be undone.
+                      </p>
+                    </div>
+
+                    <div className="mt-4">
+                      <button
+                        type="button"
+                        className="inline-flex justify-center rounded-md border border-transparent bg-red-100 px-4 py-2 text-sm font-medium text-red-900 hover:bg-red-200 focus:outline-none"
+                        onClick={handleDelete}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </Dialog.Panel>
+                </Transition.Child>
+              </div>
+            </div>
+          </Dialog>
+        </Transition>
       </PageLayout>
     </>
   );

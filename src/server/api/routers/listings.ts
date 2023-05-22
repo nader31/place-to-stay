@@ -197,14 +197,36 @@ export const listingRouter = createTRPCRouter({
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
       const userId = ctx.userId;
+
       if (!userId) {
         throw new Error("Not authorized");
       }
-      const listing = await ctx.prisma.listing.delete({
+
+      const listing = await ctx.prisma.listing.findUnique({
+        where: {
+          id: input.id,
+        },
+        include: {
+          images: true,
+        },
+      });
+
+      if (!listing) {
+        throw new Error("Listing not found");
+      }
+
+      await ctx.prisma.image.deleteMany({
+        where: {
+          listingId: input.id,
+        },
+      });
+
+      await ctx.prisma.listing.delete({
         where: {
           id: input.id,
         },
       });
+
       return listing;
     }),
 });

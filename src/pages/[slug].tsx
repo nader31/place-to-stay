@@ -6,7 +6,45 @@ import type {
 } from "next";
 import Head from "next/head";
 import { api } from "~/utils/api";
-import { LoadingPage } from "~/components/loading";
+import LoadingSpinner, { LoadingPage } from "~/components/loading";
+
+const UserStats = (props: { userId: string }) => {
+  const { data, isLoading: listingsLoading } =
+    api.listings.getAllByUser.useQuery({ userId: props.userId });
+
+  if (listingsLoading) return <LoadingSpinner />;
+
+  if (!data) return <div>Something went wrong</div>;
+
+  //find the city with the most listings
+  const cities = data.map((fullListing) => fullListing.listing.city);
+  const cityCounts = cities.reduce((acc, curr) => {
+    if (acc[curr || ""]) acc[curr || ""]++;
+    else acc[curr || ""] = 1;
+    return acc;
+  }, {} as Record<string, number>);
+
+  const mostListingsCity = Object.entries(cityCounts).reduce((a, b) =>
+    a[1] > b[1] ? a : b
+  );
+
+  return (
+    <>
+      <div className="my-10 flex w-full justify-center">
+        <div className="flex w-full max-w-lg divide-x rounded-2xl bg-gray-50">
+          <div className="flex w-full flex-col py-3 text-center">
+            <h4 className="text-3xl font-medium">{data.length}</h4>
+            <p className="text-sm text-gray-500">Listings</p>
+          </div>
+          <div className="px-auto flex w-full flex-col py-3 text-center">
+            <h4 className="text-3xl font-medium">{mostListingsCity[0]}</h4>
+            <p className="text-sm text-gray-500">Favorite city</p>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+};
 
 const UserListingView = (props: { userId: string }) => {
   const { data, isLoading: listingsLoading } =
@@ -84,6 +122,7 @@ const ProfilePage: NextPage<PageProps> = (
               <span className="text-lg font-medium">4.5</span>
             </div>
           </div>
+          <UserStats userId={data.id} />
           <UserListingView userId={data.id} />
         </div>
       </PageLayout>
