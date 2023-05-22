@@ -6,6 +6,7 @@ import "~/styles/globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "react-hot-toast";
 import Head from "next/head";
+import { Analytics } from "@vercel/analytics/react";
 
 const MyApp: AppType = ({ Component, pageProps }) => {
   return (
@@ -17,6 +18,7 @@ const MyApp: AppType = ({ Component, pageProps }) => {
       </Head>
       <Toaster />
       <Component {...pageProps} />
+      <Analytics />
     </ClerkProvider>
   );
 };
