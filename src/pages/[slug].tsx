@@ -12,7 +12,19 @@ const UserStats = (props: { userId: string }) => {
   const { data, isLoading: listingsLoading } =
     api.listings.getAllByUser.useQuery({ userId: props.userId });
 
-  if (listingsLoading) return <LoadingSpinner />;
+  if (listingsLoading)
+    return (
+      <div className="my-10 flex w-full justify-center">
+        <div className="flex w-full max-w-lg divide-x rounded-2xl bg-gray-50">
+          <div className="flex w-full flex-col items-center py-7">
+            <LoadingSpinner size={25} />
+          </div>
+          <div className="px-auto flex w-full flex-col items-center py-7">
+            <LoadingSpinner size={25} />
+          </div>
+        </div>
+      </div>
+    );
 
   if (!data) return <div>Something went wrong</div>;
 
