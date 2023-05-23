@@ -22,6 +22,8 @@ import type { DateValueType } from "react-tailwindcss-datepicker/dist/types";
 import Link from "next/link";
 import { useUser } from "@clerk/nextjs";
 import { PencilIcon } from "@heroicons/react/24/outline";
+import { toast } from "react-hot-toast";
+import LoadingSpinner from "~/components/loading";
 
 type SingleListing = RouterOutputs["listings"]["getById"];
 
@@ -84,23 +86,102 @@ const ImageGallery = (props: { data: SingleListing }) => {
 
 const BookingView = (props: { data: SingleListing }) => {
   const { data } = props;
-  const [value, setValue] = useState<DateValueType>({
-    startDate: new Date(),
-    endDate: new Date(Date.now() + 86400000),
+  const [dates, setDates] = useState<DateValueType>({
+    startDate: null,
+    endDate: null,
   });
+  const { user } = useUser();
 
   if (!data.listing) {
     return <div />;
   }
 
+  const { data: booking } = api.booking.getByUserAndListing.useQuery({
+    listingId: data.listing.id,
+    userId: user?.id,
+  });
+
   const handleValueChange = (newValue: DateValueType) => {
-    console.log("newValue:", newValue);
-    setValue(newValue);
+    setDates(newValue);
+  };
+  const ctx = api.useContext();
+
+  const { mutate, isLoading } = api.booking.create.useMutation({
+    onSuccess: () => {
+      void ctx.booking.getByUserAndListing.invalidate({
+        listingId: data?.listing?.id,
+        userId: user?.id,
+      });
+      toast.success("Booking created successfully");
+    },
+    onError: () => {
+      toast.error("Error creating booking");
+    },
+  });
+
+  const { data: bookingDates } = api.booking.getBookingDatesByListing.useQuery({
+    listingId: data.listing.id,
+  });
+
+  const { mutate: deleteBooking, isLoading: isDeleting } =
+    api.booking.deleteByUserAndListing.useMutation({
+      onSuccess: () => {
+        void ctx.booking.getByUserAndListing.invalidate({
+          listingId: data?.listing?.id,
+          userId: user?.id,
+        });
+        toast.success("Booking deleted successfully");
+      },
+      onError: () => {
+        toast.error("Error deleting booking");
+      },
+    });
+
+  const handleSubmit = () => {
+    if (!dates) return;
+    const startDate = new Date(dates.startDate?.toString() || "");
+    const endDate = new Date(dates.endDate?.toString() || "");
+    if (data.listing?.id && user?.id) {
+      mutate({
+        listingId: data.listing.id,
+        userId: user?.id,
+        startDate,
+        endDate,
+      });
+    } else if (
+      startDate > endDate ||
+      startDate < new Date() ||
+      endDate < new Date() ||
+      bookingDates?.some((bookingDate) => {
+        return (
+          (startDate >= new Date(bookingDate.startDate) &&
+            startDate <= new Date(bookingDate.endDate)) ||
+          (endDate >= new Date(bookingDate.startDate) &&
+            endDate <= new Date(bookingDate.endDate))
+        );
+      })
+    ) {
+      toast.error("Please enter valid dates");
+    }
+  };
+
+  const handleDelete = () => {
+    if (data.listing?.id && user?.id) {
+      deleteBooking({
+        listingId: data.listing.id,
+        userId: user?.id,
+      });
+    }
   };
 
   return (
     <div className="mt-10 flex w-full flex-col gap-8 rounded-2xl border p-5 shadow-lg lg:col-span-4 lg:mt-0">
-      <p className="font-semibold">Brief information</p>
+      <div className="flex justify-between">
+        <p className="font-semibold">
+          {booking ? "Your booking" : "Brief information"}
+        </p>
+        <p>{moment(booking?.booking.startDate).fromNow()}</p>
+      </div>
       <div className="flex items-center justify-around rounded-xl bg-gray-100 p-4 text-lg font-semibold">
         <div className="flex items-center gap-2">
           <svg
@@ -153,30 +234,69 @@ const BookingView = (props: { data: SingleListing }) => {
       </div>
       <div>
         <div className="flex justify-around">
-          <h2 className="text-2xl font-light text-gray-500">
-            <span className="text-3xl font-bold text-black">
-              {data.listing.price}€
-            </span>{" "}
-            /night
-          </h2>
+          {!booking ? (
+            <h2 className="text-2xl font-light text-gray-500">
+              <span className="text-3xl font-bold text-black">
+                {data.listing.price}€
+              </span>{" "}
+              /night
+            </h2>
+          ) : (
+            <div className="text-center">
+              <p className="text-3xl font-bold text-black">
+                {booking.nights * data.listing.price}€
+              </p>
+            </div>
+          )}
         </div>
       </div>
-      <Datepicker
-        startWeekOn="mon"
-        minDate={new Date()}
-        primaryColor="rose"
-        value={value}
-        onChange={handleValueChange}
-        useRange={false}
-        separator={"to"}
-        displayFormat={"DD/MM/YYYY"}
-        inputClassName={
-          "w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none"
-        }
-        disabledDates={[]}
-      />
-      <button className="flex w-full items-center justify-center rounded-lg bg-black py-3 font-medium text-white">
-        Book Now
+      {!booking ? (
+        <Datepicker
+          startWeekOn="mon"
+          minDate={new Date()}
+          primaryColor="rose"
+          value={dates}
+          onChange={handleValueChange}
+          useRange={false}
+          separator={"to"}
+          displayFormat={"DD/MM/YYYY"}
+          inputClassName={
+            "w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none"
+          }
+          popoverDirection="up"
+          disabledDates={bookingDates}
+          disabled={isLoading}
+        />
+      ) : (
+        <div>
+          <p className="mb-1 text-center font-semibold">
+            Booking dates ({booking.nights} nights)
+          </p>
+          <div className="flex justify-around">
+            <p className="text-xl text-gray-500">
+              {moment(booking.booking.startDate).format("DD/MM/YYYY")} -{" "}
+              {moment(booking.booking.endDate).format("DD/MM/YYYY")}
+            </p>
+          </div>
+        </div>
+      )}
+
+      <button
+        onClick={booking ? handleDelete : handleSubmit}
+        className={clsx(
+          "flex w-full items-center justify-center rounded-lg py-3 font-medium text-white",
+          booking ? "bg-red-600" : "bg-black"
+        )}
+      >
+        {isLoading || isDeleting ? (
+          <div className="p-1">
+            <LoadingSpinner color="white" />
+          </div>
+        ) : booking ? (
+          "Cancel Booking"
+        ) : (
+          "Book Now"
+        )}
       </button>
     </div>
   );

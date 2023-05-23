@@ -83,7 +83,7 @@ const Listings = () => {
             className="peer h-full w-full pr-8 text-sm text-gray-700 outline-none"
             type="search"
             id="search"
-            placeholder="Rechercher une ville, un logement..."
+            placeholder="Search a city, country or listing..."
             onChange={(e) => setSearch(e.target.value)}
             value={search}
             autoFocus

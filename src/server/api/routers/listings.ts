@@ -16,6 +16,7 @@ export const listingRouter = createTRPCRouter({
       },
       include: {
         images: true,
+        bookings: true,
       },
     });
     const users = (
@@ -48,6 +49,7 @@ export const listingRouter = createTRPCRouter({
         },
         include: {
           images: true,
+          bookings: true,
         },
       });
       const users = (
@@ -72,6 +74,7 @@ export const listingRouter = createTRPCRouter({
         },
         include: {
           images: true,
+          bookings: true,
         },
       });
       const user = filterUserForClient(
