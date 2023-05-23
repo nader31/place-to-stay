@@ -181,11 +181,28 @@ const BookingView = (props: { data: SingleListing; isOwner: boolean }) => {
   return (
     <div className="mt-10 flex w-full flex-col gap-8 rounded-2xl border p-5 shadow-lg lg:col-span-4 lg:mt-0">
       <div className="flex justify-between">
-        <p className="font-semibold">
-          {booking
-            ? `Your booking (${booking.booking.status})`
-            : "Brief information"}
-        </p>
+        <div className="font-semibold">
+          {booking ? (
+            <p>
+              Your booking{" "}
+              <span
+                className={clsx(
+                  "ml-2 inline-flex items-center rounded-md px-2 py-1 text-xs font-medium capitalize",
+                  booking.booking.status === "pending" &&
+                    "bg-yellow-100 text-yellow-600",
+                  booking.booking.status === "confirmed" &&
+                    "bg-green-100 text-green-600",
+                  booking.booking.status === "canceled" &&
+                    "bg-red-100 text-red-600"
+                )}
+              >
+                {booking.booking.status}
+              </span>
+            </p>
+          ) : (
+            <p>Brief information</p>
+          )}
+        </div>
         {booking && <p>{moment(booking?.booking.startDate).fromNow()}</p>}
       </div>
       <div className="flex items-center justify-around rounded-xl bg-gray-100 p-4 text-lg font-semibold">
@@ -368,6 +385,11 @@ const SingleListingPage: NextPage<PageProps> = (
 
   const isOwner = user?.id === data.listing.userId ? true : false;
 
+  const { data: booking } = api.booking.getByUserAndListing.useQuery({
+    listingId: data.listing.id,
+    userId: user?.id,
+  });
+
   return (
     <>
       <Head>
@@ -376,8 +398,25 @@ const SingleListingPage: NextPage<PageProps> = (
       <PageLayout>
         <div>
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-4xl font-semibold">{data.listing.title}</h1>
+            <div className="w-full">
+              <h1 className="flex items-center justify-between text-4xl font-semibold">
+                {data.listing.title}{" "}
+                {booking && (
+                  <span
+                    className={clsx(
+                      "ml-2 inline-flex h-fit items-center rounded-md px-2 py-1 text-sm font-medium capitalize md:text-xl",
+                      booking.booking.status === "pending" &&
+                        "bg-yellow-100 text-yellow-600",
+                      booking.booking.status === "confirmed" &&
+                        "bg-green-100 text-green-600",
+                      booking.booking.status === "canceled" &&
+                        "bg-red-100 text-red-600"
+                    )}
+                  >
+                    {booking.booking.status}
+                  </span>
+                )}
+              </h1>
               <h2 className="text-xl text-gray-500">
                 {data.listing.city}, {data.listing.country}
               </h2>
