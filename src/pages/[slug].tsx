@@ -28,13 +28,14 @@ const UserStats = (props: { userId: string }) => {
 
   if (!data) return <div>Something went wrong</div>;
 
-  //find the city with the most listings
   const cities = data.map((fullListing) => fullListing.listing.city);
   const cityCounts = cities.reduce((acc, curr) => {
     if (acc[curr || ""]) acc[curr || ""]++;
     else acc[curr || ""] = 1;
     return acc;
   }, {} as Record<string, number>);
+
+  if (cities.length === 0) return <div />;
 
   const mostListingsCity = Object.entries(cityCounts).reduce((a, b) =>
     a[1] > b[1] ? a : b
@@ -65,6 +66,8 @@ const UserListingView = (props: { userId: string }) => {
   if (listingsLoading) return <LoadingPage />;
 
   if (!data) return <div>Something went wrong</div>;
+
+  if (data.length === 0) return <div />;
 
   return (
     <>
