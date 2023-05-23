@@ -84,7 +84,7 @@ const ImageGallery = (props: { data: SingleListing }) => {
   );
 };
 
-const BookingView = (props: { data: SingleListing }) => {
+const BookingView = (props: { data: SingleListing; isOwner: boolean }) => {
   const { data } = props;
   const [dates, setDates] = useState<DateValueType>({
     startDate: null,
@@ -120,6 +120,10 @@ const BookingView = (props: { data: SingleListing }) => {
   });
 
   const { data: bookingDates } = api.booking.getBookingDatesByListing.useQuery({
+    listingId: data.listing.id,
+  });
+
+  const { data: bookingByListing } = api.booking.getByListing.useQuery({
     listingId: data.listing.id,
   });
 
@@ -252,62 +256,71 @@ const BookingView = (props: { data: SingleListing }) => {
           )}
         </div>
       </div>
-      {!booking ? (
-        <Datepicker
-          startWeekOn="mon"
-          minDate={new Date()}
-          primaryColor="rose"
-          value={dates}
-          onChange={handleValueChange}
-          useRange={false}
-          separator={"to"}
-          displayFormat={"DD/MM/YYYY"}
-          inputClassName={
-            "w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none"
-          }
-          popoverDirection="up"
-          disabledDates={bookingDates}
-          disabled={isLoading}
-        />
+      {!props.isOwner &&
+        (!booking ? (
+          <Datepicker
+            startWeekOn="mon"
+            minDate={new Date()}
+            primaryColor="rose"
+            value={dates}
+            onChange={handleValueChange}
+            useRange={false}
+            separator={"to"}
+            displayFormat={"DD/MM/YYYY"}
+            inputClassName={
+              "w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none"
+            }
+            popoverDirection="up"
+            disabledDates={bookingDates}
+            disabled={isLoading}
+          />
+        ) : (
+          <div>
+            <p className="mb-1 text-center font-semibold">
+              Booking dates ({booking.nights} nights)
+            </p>
+            <div className="flex justify-around">
+              <p className="text-xl text-gray-500">
+                {moment(booking.booking.startDate).format("DD/MM/YYYY")} -{" "}
+                {moment(booking.booking.endDate).format("DD/MM/YYYY")}
+              </p>
+            </div>
+          </div>
+        ))}
+      {!props.isOwner ? (
+        <button
+          onClick={booking ? handleDelete : handleSubmit}
+          className={clsx(
+            "flex w-full items-center justify-center rounded-lg py-3 font-medium text-white",
+            booking
+              ? booking.booking.status === "pending"
+                ? "bg-red-600"
+                : "bg-green-600"
+              : "bg-black"
+          )}
+        >
+          {isLoading || isDeleting ? (
+            <div className="p-1">
+              <LoadingSpinner color="white" />
+            </div>
+          ) : booking ? (
+            booking.booking.status === "pending" ? (
+              "Cancel Booking"
+            ) : (
+              "Booking Confirmed"
+            )
+          ) : (
+            "Book Now"
+          )}
+        </button>
       ) : (
         <div>
-          <p className="mb-1 text-center font-semibold">
-            Booking dates ({booking.nights} nights)
+          <p className="mb-2 border-t pt-5 text-center text-5xl font-medium">
+            {bookingByListing?.length}
           </p>
-          <div className="flex justify-around">
-            <p className="text-xl text-gray-500">
-              {moment(booking.booking.startDate).format("DD/MM/YYYY")} -{" "}
-              {moment(booking.booking.endDate).format("DD/MM/YYYY")}
-            </p>
-          </div>
+          <p className="mb-3 text-center text-lg">bookings</p>
         </div>
       )}
-
-      <button
-        onClick={booking ? handleDelete : handleSubmit}
-        className={clsx(
-          "flex w-full items-center justify-center rounded-lg py-3 font-medium text-white",
-          booking
-            ? booking.booking.status === "pending"
-              ? "bg-red-600"
-              : "bg-green-600"
-            : "bg-black"
-        )}
-      >
-        {isLoading || isDeleting ? (
-          <div className="p-1">
-            <LoadingSpinner color="white" />
-          </div>
-        ) : booking ? (
-          booking.booking.status === "pending" ? (
-            "Cancel Booking"
-          ) : (
-            "Booking Confirmed"
-          )
-        ) : (
-          "Book Now"
-        )}
-      </button>
     </div>
   );
 };
@@ -387,7 +400,7 @@ const SingleListingPage: NextPage<PageProps> = (
           <ImageGallery data={data} />
           <div className="gap-24 lg:grid lg:grid-cols-11 lg:items-start">
             <DescriptionView data={data} />
-            <BookingView data={data} />
+            <BookingView data={data} isOwner={isOwner} />
           </div>
         </div>
       </PageLayout>
