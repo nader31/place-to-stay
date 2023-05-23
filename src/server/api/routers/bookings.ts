@@ -121,6 +121,7 @@ export const bookingRouter = createTRPCRouter({
         },
         where: {
           listingId: input.listingId,
+          status: "confirmed",
         },
         include: {
           listing: true,

@@ -178,9 +178,11 @@ const BookingView = (props: { data: SingleListing }) => {
     <div className="mt-10 flex w-full flex-col gap-8 rounded-2xl border p-5 shadow-lg lg:col-span-4 lg:mt-0">
       <div className="flex justify-between">
         <p className="font-semibold">
-          {booking ? "Your booking" : "Brief information"}
+          {booking
+            ? `Your booking (${booking.booking.status})`
+            : "Brief information"}
         </p>
-        <p>{moment(booking?.booking.startDate).fromNow()}</p>
+        {booking && <p>{moment(booking?.booking.startDate).fromNow()}</p>}
       </div>
       <div className="flex items-center justify-around rounded-xl bg-gray-100 p-4 text-lg font-semibold">
         <div className="flex items-center gap-2">
@@ -285,7 +287,11 @@ const BookingView = (props: { data: SingleListing }) => {
         onClick={booking ? handleDelete : handleSubmit}
         className={clsx(
           "flex w-full items-center justify-center rounded-lg py-3 font-medium text-white",
-          booking ? "bg-red-600" : "bg-black"
+          booking
+            ? booking.booking.status === "pending"
+              ? "bg-red-600"
+              : "bg-green-600"
+            : "bg-black"
         )}
       >
         {isLoading || isDeleting ? (
@@ -293,7 +299,11 @@ const BookingView = (props: { data: SingleListing }) => {
             <LoadingSpinner color="white" />
           </div>
         ) : booking ? (
-          "Cancel Booking"
+          booking.booking.status === "pending" ? (
+            "Cancel Booking"
+          ) : (
+            "Booking Confirmed"
+          )
         ) : (
           "Book Now"
         )}
