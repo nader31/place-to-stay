@@ -58,16 +58,16 @@ export default function Header() {
             >
               Entire Homes
             </a>
-            <a
-              href="#"
+            <Link
+              href="/bookings"
               className="text-base font-medium text-gray-500 hover:text-gray-900"
             >
-              Unique Stays
-            </a>
+              My Bookings
+            </Link>
             {isSignedIn && (
               <Link
                 href="/listing/create"
-                className="my-auto rounded-full bg-black px-3 py-1 text-base font-medium text-white"
+                className="my-auto rounded-full bg-neutral-900 px-3 py-1 text-base font-medium text-white hover:bg-black"
               >
                 Add Listing
               </Link>
@@ -76,7 +76,7 @@ export default function Header() {
           <div className="flex items-center md:ml-12">
             {!isSignedIn && (
               <SignInButton mode="redirect">
-                <button className="ml-8 inline-flex items-center justify-center rounded-full border border-transparent bg-black px-4 py-1 font-medium text-white shadow-sm">
+                <button className="ml-8 inline-flex items-center justify-center rounded-full border border-transparent bg-neutral-900 px-4 py-1 font-medium text-white shadow-sm hover:bg-black">
                   Sign in
                 </button>
               </SignInButton>
@@ -169,12 +169,12 @@ export default function Header() {
                   Entire Homes
                 </a>
 
-                <a
-                  href="#"
+                <Link
+                  href="/bookings"
                   className="text-base font-medium text-gray-900 hover:text-gray-700"
                 >
-                  Unique Stays
-                </a>
+                  My Bookings
+                </Link>
                 <Link
                   href="/listing/create"
                   className="text-base font-medium text-gray-900 hover:text-gray-700"
@@ -185,13 +185,13 @@ export default function Header() {
               <div className="mt-6">
                 {!isSignedIn ? (
                   <SignInButton mode="redirect">
-                    <button className="flex w-full items-center justify-center rounded-md border border-transparent bg-black px-4 py-2 text-base font-medium text-white shadow-sm">
+                    <button className="flex w-full items-center justify-center rounded-md border border-transparent bg-neutral-900 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-black">
                       Sign in
                     </button>
                   </SignInButton>
                 ) : (
                   <button
-                    className="flex w-full items-center justify-center rounded-md border border-transparent bg-black px-4 py-2 text-base font-medium text-white shadow-sm"
+                    className="flex w-full items-center justify-center rounded-md border border-transparent bg-neutral-900 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-black"
                     // eslint-disable-next-line @typescript-eslint/no-misused-promises
                     onClick={() => signOut()}
                   >

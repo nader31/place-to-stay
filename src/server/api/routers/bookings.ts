@@ -179,6 +179,49 @@ export const bookingRouter = createTRPCRouter({
       }
     }),
 
+  getByListingAuthor: publicProcedure
+    .input(
+      z.object({
+        listingAuthorId: z.string(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const bookings = await ctx.prisma.booking.findMany({
+        take: 100,
+        orderBy: {
+          createdAt: "desc",
+        },
+        where: {
+          listing: {
+            userId: input.listingAuthorId,
+          },
+        },
+        include: {
+          listing: {
+            include: {
+              images: true,
+            },
+          },
+        },
+      });
+
+      const users = (
+        await clerkClient.users.getUserList({
+          userId: bookings.map((booking) => booking.userId || ""),
+          limit: 100,
+        })
+      ).map(filterUserForClient);
+
+      return bookings.map((booking) => ({
+        ...booking,
+        nights: Math.ceil(
+          (booking.endDate.getTime() - booking.startDate.getTime()) /
+            (1000 * 60 * 60 * 24)
+        ),
+        user: users.find((user) => user.id === booking.userId),
+      }));
+    }),
+
   create: privateProcedure
     .input(
       z.object({
@@ -218,6 +261,25 @@ export const bookingRouter = createTRPCRouter({
         where: {
           userId: input.userId,
           listingId: input.listingId,
+        },
+      });
+      return booking;
+    }),
+
+  updateBookingStatus: privateProcedure
+    .input(
+      z.object({
+        bookingId: z.string(),
+        status: z.enum(["confirmed", "canceled"]),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const booking = await ctx.prisma.booking.update({
+        where: {
+          id: input.bookingId,
+        },
+        data: {
+          status: input.status,
         },
       });
       return booking;

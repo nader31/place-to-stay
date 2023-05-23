@@ -226,7 +226,7 @@ const SingleListingPage: NextPage<PageProps> = (
             <div className="mt-8 flex gap-3">
               <button
                 onClick={() => setIsOpen(true)}
-                className="flex w-full items-center justify-center rounded-lg bg-red-600 px-4 py-3 font-medium text-white"
+                className="flex w-full items-center justify-center rounded-lg bg-red-500 px-4 py-3 font-medium text-white hover:bg-red-600"
                 disabled={isDeleting}
               >
                 {isDeleting ? (
@@ -239,7 +239,7 @@ const SingleListingPage: NextPage<PageProps> = (
               </button>
               <button
                 onClick={handleSubmit}
-                className="flex w-full items-center justify-center rounded-lg bg-black px-4 py-3 font-medium text-white"
+                className="flex w-full items-center justify-center rounded-lg bg-neutral-900 px-4 py-3 font-medium text-white hover:bg-black"
                 disabled={isUpdating}
               >
                 {isUpdating ? (

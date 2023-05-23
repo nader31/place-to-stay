@@ -239,7 +239,7 @@ export default function CreateListing() {
         )}
         <button
           onClick={handleSubmit}
-          className="mt-8 flex items-center justify-center rounded-lg bg-black px-4 py-3 font-medium text-white"
+          className="mt-8 flex items-center justify-center rounded-lg bg-neutral-900 px-4 py-3 font-medium text-white hover:bg-black"
           disabled={isCreating}
         >
           {isCreating ? (

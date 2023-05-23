@@ -26,7 +26,7 @@ const RangeSlider = <T extends number | readonly number[]>(
           )}
         >
           {isHovered && !!displayPrice && (
-            <div className="absolute mb-14 rounded-full bg-black px-2 py-1">
+            <div className="absolute mb-14 rounded-full bg-neutral-900 px-2 py-1">
               {state.valueNow}
             </div>
           )}

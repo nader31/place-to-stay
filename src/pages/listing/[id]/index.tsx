@@ -306,25 +306,47 @@ const BookingView = (props: { data: SingleListing; isOwner: boolean }) => {
         ))}
       {!props.isOwner ? (
         <button
-          onClick={booking ? handleDelete : handleSubmit}
+          onClick={
+            booking
+              ? booking?.booking.status === "pending"
+                ? handleDelete
+                : () => {
+                    return;
+                  }
+              : handleSubmit
+          }
+          disabled={
+            isLoading ||
+            isDeleting ||
+            booking?.booking.status === "confirmed" ||
+            booking?.booking.status === "canceled"
+          }
           className={clsx(
             "flex w-full items-center justify-center rounded-lg py-3 font-medium text-white",
             booking
               ? booking.booking.status === "pending"
-                ? "bg-red-600"
-                : "bg-green-600"
-              : "bg-black"
+                ? "bg-red-500 hover:bg-red-600"
+                : booking.booking.status === "confirmed"
+                ? "bg-green-500 hover:bg-green-600"
+                : "bg-gray-600"
+              : "bg-neutral-900 hover:bg-black"
           )}
         >
           {isLoading || isDeleting ? (
             <div className="p-1">
-              <LoadingSpinner color="white" />
+              <LoadingSpinner
+                color={
+                  booking?.booking.status === "pending" ? "secondary" : "white"
+                }
+              />
             </div>
           ) : booking ? (
             booking.booking.status === "pending" ? (
               "Cancel Booking"
-            ) : (
+            ) : booking.booking.status === "confirmed" ? (
               "Booking Confirmed"
+            ) : (
+              "Booking Canceled"
             )
           ) : (
             "Book Now"
@@ -416,19 +438,19 @@ const SingleListingPage: NextPage<PageProps> = (
                     {booking.booking.status}
                   </span>
                 )}
+                {isOwner && (
+                  <Link
+                    href={`/listing/${data.listing.id}/edit`}
+                    className="rounded-full p-2 hover:bg-gray-50"
+                  >
+                    <PencilIcon className="h-6 w-6" />
+                  </Link>
+                )}
               </h1>
               <h2 className="text-xl text-gray-500">
                 {data.listing.city}, {data.listing.country}
               </h2>
             </div>
-            {isOwner && (
-              <Link
-                href={`/listing/${data.listing.id}/edit`}
-                className="rounded-full p-2 hover:bg-gray-50"
-              >
-                <PencilIcon className="h-6 w-6" />
-              </Link>
-            )}
           </div>
           <div className="mt-2 flex gap-3">
             <div className="flex items-center gap-2">
