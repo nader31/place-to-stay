@@ -10,6 +10,8 @@ import { MagnifyingGlassIcon } from "@heroicons/react/24/solid";
 import { useState } from "react";
 import { SelectCategory } from "./listing/create";
 import type { Category } from "~/server/api/routers/listings";
+import type { DateValueType } from "react-tailwindcss-datepicker/dist/types";
+import Datepicker from "react-tailwindcss-datepicker";
 
 export type ListingWithUser = RouterOutputs["listings"]["getAll"][number];
 export const ListingView = (props: ListingWithUser) => {
@@ -61,13 +63,28 @@ export const ListingView = (props: ListingWithUser) => {
 const Listings = () => {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState<Category | undefined>();
+  const [dates, setDates] = useState<DateValueType>({
+    startDate: null,
+    endDate: null,
+  });
+
   const { data, isLoading: listingsLoading } = api.listings.getAll.useQuery();
+
+  const { data: availableListings } =
+    api.listings.getAllByAvailableDates.useQuery({
+      startDate: !dates?.startDate
+        ? undefined
+        : new Date(dates?.startDate?.toString()),
+      endDate: !dates?.endDate
+        ? undefined
+        : new Date(dates?.endDate?.toString()),
+    });
 
   if (listingsLoading) return <LoadingPage />;
 
   if (!data) return <div>Something went wrong</div>;
 
-  const filteredData = data.filter(
+  const filteredData = (availableListings || []).filter(
     (item) =>
       (item?.listing?.city?.toLowerCase().includes(search.toLowerCase()) ||
         item?.listing?.country?.toLowerCase().includes(search.toLowerCase()) ||
@@ -75,25 +92,50 @@ const Listings = () => {
       (category ? item?.listing?.category === category : true)
   );
 
+  const handleValueChange = (newValue: DateValueType) => {
+    setDates(newValue);
+  };
+
   return (
     <div>
       <div className="mx-auto mb-10 max-w-2xl">
-        <div className="relative flex w-full items-center overflow-hidden rounded-full border bg-white">
-          <div className="grid h-full place-items-center p-5 text-gray-300">
-            <MagnifyingGlassIcon className="h-5 w-5" />
+        <div className="rounded-md border">
+          <div className="relative flex w-full items-center overflow-hidden rounded-full bg-white">
+            <div className="grid h-full place-items-center p-5 text-gray-300">
+              <MagnifyingGlassIcon className="h-5 w-5" />
+            </div>
+            <input
+              className="peer h-full w-full pr-8 text-sm text-gray-700 outline-none"
+              type="search"
+              id="search"
+              placeholder="Search a city, country or listing..."
+              onChange={(e) => setSearch(e.target.value)}
+              value={search}
+              autoFocus
+              onBlur={() => {
+                document.getElementById("search")?.blur();
+              }}
+            />
           </div>
-          <input
-            className="peer h-full w-full pr-8 text-sm text-gray-700 outline-none"
-            type="search"
-            id="search"
-            placeholder="Search a city, country or listing..."
-            onChange={(e) => setSearch(e.target.value)}
-            value={search}
-            autoFocus
-            onBlur={() => {
-              document.getElementById("search")?.blur();
-            }}
-          />
+          <div className="flex gap-3 px-5 pb-5">
+            <Datepicker
+              startWeekOn="mon"
+              minDate={new Date()}
+              primaryColor="rose"
+              value={dates}
+              onChange={handleValueChange}
+              useRange={false}
+              separator={"to"}
+              displayFormat={"DD/MM/YYYY"}
+              inputClassName={
+                "w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none"
+              }
+              placeholder="Select your dates"
+              popoverDirection="down"
+            />
+            {/* <p className="w-full rounded-md border px-4 py-2">Start date</p>
+            <p className="w-full rounded-md border px-4 py-2">End date</p> */}
+          </div>
         </div>
         <SelectCategory category={category} setCategory={setCategory} />
       </div>

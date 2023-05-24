@@ -43,6 +43,70 @@ export const listingRouter = createTRPCRouter({
     }));
   }),
 
+  getAllByAvailableDates: publicProcedure
+    .input(
+      z.object({
+        startDate: z.date().optional(),
+        endDate: z.date().optional(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const bookings = await ctx.prisma.booking.findMany({
+        where: {
+          OR: [
+            {
+              startDate: {
+                lte: input.startDate,
+              },
+              endDate: {
+                gte: input.startDate,
+              },
+            },
+            {
+              startDate: {
+                lte: input.endDate,
+              },
+              endDate: {
+                gte: input.endDate,
+              },
+            },
+          ],
+        },
+      });
+
+      const listingIds =
+        !input.startDate || !input.endDate
+          ? []
+          : bookings.map((booking) => booking.listingId);
+
+      const listings = await ctx.prisma.listing.findMany({
+        take: 100,
+        orderBy: {
+          createdAt: "desc",
+        },
+        where: {
+          id: {
+            notIn: listingIds,
+          },
+        },
+        include: {
+          images: true,
+          bookings: true,
+        },
+      });
+      const users = (
+        await clerkClient.users.getUserList({
+          userId: listings.map((listing) => listing.userId || ""),
+          limit: 100,
+        })
+      ).map(filterUserForClient);
+
+      return listings.map((listing) => ({
+        listing,
+        author: users.find((user) => user.id === listing.userId),
+      }));
+    }),
+
   getAllByUser: publicProcedure
     .input(
       z.object({
