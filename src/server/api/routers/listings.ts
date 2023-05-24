@@ -121,6 +121,7 @@ export const listingRouter = createTRPCRouter({
             { title: { contains: input.search } },
           ],
           category: input.category,
+          beds: input.beds === 5 ? { gte: input.beds } : input.beds,
         },
       });
 

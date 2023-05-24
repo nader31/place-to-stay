@@ -39,16 +39,18 @@ export const bookingRouter = createTRPCRouter({
     .input(
       z.object({
         userId: z.string(),
+        status: z.enum(["pending", "confirmed", "canceled"]).optional(),
       })
     )
     .query(async ({ ctx, input }) => {
       const bookings = await ctx.prisma.booking.findMany({
         take: 100,
         orderBy: {
-          createdAt: "desc",
+          startDate: "asc",
         },
         where: {
           userId: input.userId,
+          status: input.status,
         },
         include: {
           listing: {
@@ -68,6 +70,10 @@ export const bookingRouter = createTRPCRouter({
       return bookings.map((booking) => ({
         booking,
         user: users.find((user) => user.id === booking.userId),
+        nights: Math.ceil(
+          (booking.endDate.getTime() - booking.startDate.getTime()) /
+            (1000 * 60 * 60 * 24)
+        ),
       }));
     }),
 
@@ -183,6 +189,7 @@ export const bookingRouter = createTRPCRouter({
     .input(
       z.object({
         listingAuthorId: z.string(),
+        status: z.enum(["pending", "confirmed", "canceled"]).optional(),
       })
     )
     .query(async ({ ctx, input }) => {
@@ -195,6 +202,7 @@ export const bookingRouter = createTRPCRouter({
           listing: {
             userId: input.listingAuthorId,
           },
+          status: input.status,
         },
         include: {
           listing: {

@@ -7,6 +7,9 @@ import Image from "next/image";
 import Link from "next/link";
 import moment from "moment";
 import { toast } from "react-hot-toast";
+import { useState } from "react";
+import clsx from "clsx";
+import Head from "next/head";
 
 type SingleBooking = RouterOutputs["booking"]["getByListingAuthor"][number];
 
@@ -42,19 +45,27 @@ const BookingPreview = (props: { data: SingleBooking }) => {
   );
 };
 
-export default function Bookings() {
-  const { user } = useUser();
-
-  if (!user) return <div />;
+const BookingList = () => {
+  const { user, isSignedIn } = useUser();
 
   const ctx = api.useContext();
+
+  const [status, setStatus] = useState<
+    "confirmed" | "pending" | "canceled" | undefined
+  >("pending");
+
+  const { data, isLoading } = api.booking.getByListingAuthor.useQuery({
+    listingAuthorId: user?.id || "",
+    status,
+  });
 
   const { mutate, isLoading: isUpdating } =
     api.booking.updateBookingStatus.useMutation({
       onSuccess: () => {
         toast.success("Booking updated");
         void ctx.booking.getByListingAuthor.invalidate({
-          listingAuthorId: user?.id,
+          listingAuthorId: user?.id || "",
+          status,
         });
       },
       onError: () => {
@@ -62,9 +73,7 @@ export default function Bookings() {
       },
     });
 
-  const { data, isLoading } = api.booking.getByListingAuthor.useQuery({
-    listingAuthorId: user?.id,
-  });
+  if (!isSignedIn) return <div />;
 
   if (isLoading) return <LoadingPage />;
 
@@ -79,7 +88,50 @@ export default function Bookings() {
   };
 
   return (
-    <PageLayout>
+    <div>
+      <div className="mx-auto mb-10 grid max-w-md grid-cols-3 gap-5">
+        <button
+          onClick={() =>
+            status === "pending" ? setStatus(undefined) : setStatus("pending")
+          }
+          className={clsx(
+            "rounded-lg border py-2",
+            status === "pending"
+              ? "border-transparent bg-yellow-100 text-yellow-600"
+              : "border-gray-200 bg-white"
+          )}
+        >
+          <p>Pending</p>
+        </button>
+        <button
+          onClick={() =>
+            status === "confirmed"
+              ? setStatus(undefined)
+              : setStatus("confirmed")
+          }
+          className={clsx(
+            "rounded-lg border py-2",
+            status === "confirmed"
+              ? "border-transparent bg-green-100 text-green-600"
+              : "border-gray-200 bg-white"
+          )}
+        >
+          <p>Confirmed</p>
+        </button>
+        <button
+          onClick={() =>
+            status === "canceled" ? setStatus(undefined) : setStatus("canceled")
+          }
+          className={clsx(
+            "rounded-lg border py-2",
+            status === "canceled"
+              ? "border-transparent bg-gray-100 text-gray-600"
+              : "border-gray-200 bg-white"
+          )}
+        >
+          <p>Canceled</p>
+        </button>
+      </div>
       <div className="grid gap-x-4 gap-y-10 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
         {data.map((booking) => (
           <div key={booking.id} className="rounded-3xl border p-4">
@@ -123,11 +175,11 @@ export default function Bookings() {
             </div>
 
             {booking.status === "confirmed" ? (
-              <div className="mt-8 flex w-full items-center justify-center rounded-lg bg-green-500 px-4 py-3 font-medium text-white">
+              <div className="mt-8 flex w-full items-center justify-center rounded-lg bg-green-100 px-4 py-3 font-medium text-green-600">
                 <p>Confirmed</p>
               </div>
             ) : booking.status === "canceled" ? (
-              <div className="mt-8 flex w-full items-center justify-center rounded-lg bg-gray-300 px-4 py-3 font-medium">
+              <div className="mt-8 flex w-full items-center justify-center rounded-lg bg-gray-100 px-4 py-3 font-medium text-gray-600">
                 <p>Canceled</p>
               </div>
             ) : (
@@ -151,6 +203,19 @@ export default function Bookings() {
           </div>
         ))}
       </div>
-    </PageLayout>
+    </div>
+  );
+};
+
+export default function Bookings() {
+  return (
+    <>
+      <Head>
+        <title>Dashboard</title>
+      </Head>
+      <PageLayout>
+        <BookingList />
+      </PageLayout>
+    </>
   );
 }

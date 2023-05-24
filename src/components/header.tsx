@@ -19,6 +19,11 @@ export default function Header() {
 
   if (!userLoaded) return <div />;
 
+  const { data } = api.booking.getByListingAuthor.useQuery({
+    listingAuthorId: user?.id || "",
+    status: "pending",
+  });
+
   return (
     <Popover className="sticky top-0 z-30 w-full bg-white">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 sm:px-6 md:justify-start md:space-x-10 xl:px-0">
@@ -46,24 +51,27 @@ export default function Header() {
         </div>
         <div className="hidden md:flex md:flex-1 md:items-center md:justify-between">
           <Popover.Group as="nav" className="flex items-center space-x-10">
-            <a
-              href="#"
-              className="text-base font-medium text-gray-500 hover:text-gray-900"
-            >
-              Cabins & Cottages
-            </a>
-            <a
-              href="#"
-              className="text-base font-medium text-gray-500 hover:text-gray-900"
-            >
-              Entire Homes
-            </a>
-            <Link
-              href="/bookings"
-              className="text-base font-medium text-gray-500 hover:text-gray-900"
-            >
-              My Bookings
-            </Link>
+            {isSignedIn && (
+              <Link
+                href="/trips"
+                className="text-base font-medium text-gray-500 hover:text-gray-900"
+              >
+                My Trips
+              </Link>
+            )}
+            {isSignedIn && (
+              <Link
+                href="/bookings"
+                className="flex items-center gap-1 text-base font-medium text-gray-500 hover:text-gray-900"
+              >
+                <p>Dashboard</p>
+                {data && data.length > 0 && (
+                  <div className=" -mt-3 flex h-4 w-4 items-center justify-center rounded-full bg-rose-600 text-xs text-white">
+                    {data.length}
+                  </div>
+                )}
+              </Link>
+            )}
             {isSignedIn && (
               <Link
                 href="/listing/create"
@@ -155,26 +163,27 @@ export default function Header() {
             )}
             <div className="px-5 py-6">
               <div className="grid grid-cols-2 gap-4">
-                <a
-                  href="#"
-                  className="text-base font-medium text-gray-900 hover:text-gray-700"
-                >
-                  Cabins & Cottages
-                </a>
-
-                <a
-                  href="#"
-                  className="text-base font-medium text-gray-900 hover:text-gray-700"
-                >
-                  Entire Homes
-                </a>
-
-                <Link
-                  href="/bookings"
-                  className="text-base font-medium text-gray-900 hover:text-gray-700"
-                >
-                  My Bookings
-                </Link>
+                {isSignedIn && (
+                  <Link
+                    href="#"
+                    className="text-base font-medium text-gray-900 hover:text-gray-700"
+                  >
+                    My Trips
+                  </Link>
+                )}
+                {isSignedIn && (
+                  <Link
+                    href="/bookings"
+                    className="flex gap-1 text-base font-medium text-gray-900 hover:text-gray-700"
+                  >
+                    <p>Dashboard</p>
+                    {data && data.length > 0 && (
+                      <div className=" -mt-1 flex h-4 w-4 items-center justify-center rounded-full bg-rose-600 text-xs text-white">
+                        {data.length}
+                      </div>
+                    )}
+                  </Link>
+                )}
                 <Link
                   href="/listing/create"
                   className="text-base font-medium text-gray-900 hover:text-gray-700"

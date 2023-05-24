@@ -134,7 +134,7 @@ const ProfilePage: NextPage<PageProps> = (
           <div className="mb-5 flex w-full justify-center">
             <div className="flex items-center gap-1">
               <StarIcon className="h-5 w-5" />
-              <span className="text-lg font-medium">4.5</span>
+              <span className="text-lg font-medium">5.0</span>
             </div>
           </div>
           <UserStats userId={data.id} />

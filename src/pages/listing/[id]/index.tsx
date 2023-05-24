@@ -20,7 +20,7 @@ import moment from "moment";
 import Datepicker from "react-tailwindcss-datepicker";
 import type { DateValueType } from "react-tailwindcss-datepicker/dist/types";
 import Link from "next/link";
-import { useUser } from "@clerk/nextjs";
+import { useClerk, useUser } from "@clerk/nextjs";
 import { PencilIcon } from "@heroicons/react/24/outline";
 import { toast } from "react-hot-toast";
 import LoadingSpinner from "~/components/loading";
@@ -85,12 +85,13 @@ const ImageGallery = (props: { data: SingleListing }) => {
 };
 
 const BookingView = (props: { data: SingleListing; isOwner: boolean }) => {
-  const { data } = props;
+  const { data, isOwner } = props;
   const [dates, setDates] = useState<DateValueType>({
     startDate: null,
     endDate: null,
   });
-  const { user } = useUser();
+  const { user, isSignedIn } = useUser();
+  const { openSignIn } = useClerk();
 
   if (!data.listing) {
     return <div />;
@@ -148,7 +149,7 @@ const BookingView = (props: { data: SingleListing; isOwner: boolean }) => {
     if (data.listing?.id && user?.id) {
       mutate({
         listingId: data.listing.id,
-        userId: user?.id,
+        userId: user.id,
         startDate,
         endDate,
       });
@@ -173,7 +174,7 @@ const BookingView = (props: { data: SingleListing; isOwner: boolean }) => {
     if (data.listing?.id && user?.id) {
       deleteBooking({
         listingId: data.listing.id,
-        userId: user?.id,
+        userId: user.id,
       });
     }
   };
@@ -273,7 +274,7 @@ const BookingView = (props: { data: SingleListing; isOwner: boolean }) => {
           )}
         </div>
       </div>
-      {!props.isOwner &&
+      {!isOwner &&
         (!booking ? (
           <Datepicker
             startWeekOn="mon"
@@ -304,16 +305,20 @@ const BookingView = (props: { data: SingleListing; isOwner: boolean }) => {
             </div>
           </div>
         ))}
-      {!props.isOwner ? (
+      {!isOwner ? (
         <button
           onClick={
-            booking
-              ? booking?.booking.status === "pending"
-                ? handleDelete
-                : () => {
-                    return;
-                  }
-              : handleSubmit
+            isSignedIn
+              ? booking
+                ? booking?.booking.status === "pending"
+                  ? handleDelete
+                  : () => {
+                      return;
+                    }
+                : handleSubmit
+              : () => {
+                  openSignIn();
+                }
           }
           disabled={
             isLoading ||
@@ -340,16 +345,20 @@ const BookingView = (props: { data: SingleListing; isOwner: boolean }) => {
                 }
               />
             </div>
-          ) : booking ? (
-            booking.booking.status === "pending" ? (
-              "Cancel Booking"
-            ) : booking.booking.status === "confirmed" ? (
-              "Booking Confirmed"
+          ) : isSignedIn ? (
+            booking ? (
+              booking.booking.status === "pending" ? (
+                "Cancel Booking"
+              ) : booking.booking.status === "confirmed" ? (
+                "Booking Confirmed"
+              ) : (
+                "Booking Canceled"
+              )
             ) : (
-              "Booking Canceled"
+              "Book Now"
             )
           ) : (
-            "Book Now"
+            "Sign in to book"
           )}
         </button>
       ) : (
@@ -473,6 +482,27 @@ const DescriptionView = (props: { data: SingleListing }) => {
         <h3 className="text-2xl font-medium">Description</h3>
         <p className="mt-2 text-lg text-gray-500">{data.listing.description}</p>
       </div>
+      <div className="mt-8">
+        <div className="grid max-w-2xl grid-cols-2 divide-x">
+          <div>
+            <h3 className="text-lg font-medium">Check-in</h3>
+            <p className="mt-2 text-gray-500">
+              3:00 PM (15:00) 10:00 PM (22:00)
+            </p>
+          </div>
+          <div className="pl-4">
+            <h3 className="text-lg font-medium">Checkout</h3>
+            <p className="mt-2 text-gray-500">
+              11:00 AM (11:00) - 12:00 PM (12:00)
+            </p>
+          </div>
+        </div>
+
+        <h3 className="mt-4 text-lg font-medium">Self check-in</h3>
+        <p className="mt-2 text-gray-500">
+          Check yourself in with the lockbox.
+        </p>
+      </div>
     </div>
   );
 };
@@ -538,7 +568,7 @@ const SingleListingPage: NextPage<PageProps> = (
           <div className="mt-2 flex gap-3">
             <div className="flex items-center gap-2">
               <StarIcon className="h-5 w-5" />
-              <span className="text-lg font-medium">4.5</span>
+              <span className="text-lg font-medium">5.0</span>
             </div>
           </div>
           <ImageGallery data={data} />
