@@ -72,7 +72,7 @@ const Listings = () => {
       (item?.listing?.city?.toLowerCase().includes(search.toLowerCase()) ||
         item?.listing?.country?.toLowerCase().includes(search.toLowerCase()) ||
         item?.listing?.title.toLowerCase().includes(search.toLowerCase())) &&
-      item?.listing?.category === category
+      (category ? item?.listing?.category === category : true)
   );
 
   return (

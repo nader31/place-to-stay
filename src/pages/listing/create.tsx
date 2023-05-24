@@ -16,7 +16,7 @@ export const SelectCategory = ({
   setCategory,
 }: {
   category: Category | undefined;
-  setCategory: (category: Category) => void;
+  setCategory: (category: Category | undefined) => void;
 }) => {
   return (
     <div className="my-4 grid grid-cols-3 gap-3 md:grid-cols-6">
@@ -27,7 +27,11 @@ export const SelectCategory = ({
             ? "bg-neutral-900 text-white"
             : "hover:bg-gray-100"
         )}
-        onClick={() => setCategory("apartment")}
+        onClick={() =>
+          category === "apartment"
+            ? setCategory(undefined)
+            : setCategory("apartment")
+        }
       >
         <svg
           className="h-10 w-10"
@@ -49,7 +53,9 @@ export const SelectCategory = ({
             ? "bg-neutral-900 text-white"
             : "hover:bg-gray-100"
         )}
-        onClick={() => setCategory("house")}
+        onClick={() =>
+          category === "house" ? setCategory(undefined) : setCategory("house")
+        }
       >
         <svg
           className="h-10 w-10"
@@ -71,7 +77,9 @@ export const SelectCategory = ({
             ? "bg-neutral-900 text-white"
             : "hover:bg-gray-100"
         )}
-        onClick={() => setCategory("hotel")}
+        onClick={() =>
+          category === "hotel" ? setCategory(undefined) : setCategory("hotel")
+        }
       >
         <svg
           className="h-10 w-10"
@@ -93,7 +101,11 @@ export const SelectCategory = ({
             ? "bg-neutral-900 text-white"
             : "hover:bg-gray-100"
         )}
-        onClick={() => setCategory("guesthouse")}
+        onClick={() =>
+          category === "guesthouse"
+            ? setCategory(undefined)
+            : setCategory("guesthouse")
+        }
       >
         <svg
           className="h-10 w-10"
@@ -115,7 +127,9 @@ export const SelectCategory = ({
             ? "bg-neutral-900 text-white"
             : "hover:bg-gray-100"
         )}
-        onClick={() => setCategory("hostel")}
+        onClick={() =>
+          category === "hostel" ? setCategory(undefined) : setCategory("hostel")
+        }
       >
         <svg
           className="h-10 w-10"
@@ -138,7 +152,9 @@ export const SelectCategory = ({
             ? "bg-neutral-900 text-white"
             : "text-black hover:bg-gray-100"
         )}
-        onClick={() => setCategory("bnb")}
+        onClick={() =>
+          category === "bnb" ? setCategory(undefined) : setCategory("bnb")
+        }
       >
         <svg
           className="h-10 w-10"
@@ -168,7 +184,7 @@ export default function CreateListing() {
   const [country, setCountry] = useState("France");
   const [city, setCity] = useState("");
   const [images, setImages] = useState<string[]>([]);
-  const [category, setCategory] = useState<Category>("apartment");
+  const [category, setCategory] = useState<Category | undefined>("apartment");
 
   const ctx = api.useContext();
 
@@ -213,7 +229,7 @@ export default function CreateListing() {
       baths,
       country,
       city,
-      category,
+      category: category || "other",
       images: images.map((image) => ({ url: image })),
     });
   };
