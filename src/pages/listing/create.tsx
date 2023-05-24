@@ -15,7 +15,7 @@ export const SelectCategory = ({
   category,
   setCategory,
 }: {
-  category: Category;
+  category: Category | undefined;
   setCategory: (category: Category) => void;
 }) => {
   return (

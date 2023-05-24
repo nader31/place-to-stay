@@ -8,6 +8,8 @@ import Link from "next/link";
 import PageLayout from "~/components/layout";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/solid";
 import { useState } from "react";
+import { SelectCategory } from "./listing/create";
+import type { Category } from "~/server/api/routers/listings";
 
 export type ListingWithUser = RouterOutputs["listings"]["getAll"][number];
 export const ListingView = (props: ListingWithUser) => {
@@ -58,6 +60,7 @@ export const ListingView = (props: ListingWithUser) => {
 
 const Listings = () => {
   const [search, setSearch] = useState("");
+  const [category, setCategory] = useState<Category | undefined>();
   const { data, isLoading: listingsLoading } = api.listings.getAll.useQuery();
 
   if (listingsLoading) return <LoadingPage />;
@@ -66,9 +69,10 @@ const Listings = () => {
 
   const filteredData = data.filter(
     (item) =>
-      item?.listing?.city?.toLowerCase().includes(search.toLowerCase()) ||
-      item?.listing?.country?.toLowerCase().includes(search.toLowerCase()) ||
-      item?.listing?.title.toLowerCase().includes(search.toLowerCase())
+      (item?.listing?.city?.toLowerCase().includes(search.toLowerCase()) ||
+        item?.listing?.country?.toLowerCase().includes(search.toLowerCase()) ||
+        item?.listing?.title.toLowerCase().includes(search.toLowerCase())) &&
+      item?.listing?.category === category
   );
 
   return (
@@ -78,7 +82,6 @@ const Listings = () => {
           <div className="grid h-full place-items-center p-5 text-gray-300">
             <MagnifyingGlassIcon className="h-5 w-5" />
           </div>
-
           <input
             className="peer h-full w-full pr-8 text-sm text-gray-700 outline-none"
             type="search"
@@ -92,6 +95,7 @@ const Listings = () => {
             }}
           />
         </div>
+        <SelectCategory category={category} setCategory={setCategory} />
       </div>
       <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
         {filteredData.map((fullListing) => (
