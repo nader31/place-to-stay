@@ -68,7 +68,7 @@ const TripsView = () => {
                   </div>
                 ) : booking.booking.status === "canceled" ? (
                   <div className="rounded-xl bg-red-100 py-3 text-center">
-                    <p className="text-sm text-red-600">Confirmed</p>
+                    <p className="text-sm text-red-600">Canceled</p>
                   </div>
                 ) : (
                   <div className="rounded-xl bg-yellow-100 py-3 text-center">
