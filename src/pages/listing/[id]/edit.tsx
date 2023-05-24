@@ -20,6 +20,8 @@ import RangeSlider from "~/components/rangeSlider";
 import LoadingSpinner from "~/components/loading";
 import { useRouter } from "next/router";
 import { Dialog, Transition } from "@headlessui/react";
+import type { Category } from "~/server/api/routers/listings";
+import { SelectCategory } from "../create";
 
 type PageProps = InferGetStaticPropsType<typeof getStaticProps>;
 
@@ -41,6 +43,9 @@ const SingleListingPage: NextPage<PageProps> = (
   const [city, setCity] = useState(data?.listing?.city || "");
   const [images, setImages] = useState<string[]>(
     data?.listing?.images.map((image) => image.url) || []
+  );
+  const [category, setCategory] = useState<Category>(
+    (data?.listing?.category as Category) || "apartment"
   );
 
   const [isOpen, setIsOpen] = useState(false);
@@ -87,6 +92,7 @@ const SingleListingPage: NextPage<PageProps> = (
       beds,
       baths,
       city,
+      category,
       images: images.map((image) => ({ url: image })),
       id: data?.listing?.id || "",
     });
@@ -136,6 +142,7 @@ const SingleListingPage: NextPage<PageProps> = (
                 id="city"
               />
             </div>
+            <SelectCategory category={category} setCategory={setCategory} />
             <div className="flex flex-col gap-3">
               <label htmlFor="description" className="font-medium">
                 Description

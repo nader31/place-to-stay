@@ -7,6 +7,17 @@ import {
 } from "~/server/api/trpc";
 import { filterUserForClient } from "~/server/helpers/filterUserForClient";
 
+const categoryEnum = z.enum([
+  "apartment",
+  "house",
+  "hotel",
+  "guesthouse",
+  "hostel",
+  "bnb",
+  "other",
+]);
+export type Category = z.infer<typeof categoryEnum>;
+
 export const listingRouter = createTRPCRouter({
   getAll: publicProcedure.query(async ({ ctx }) => {
     const listings = await ctx.prisma.listing.findMany({
@@ -97,6 +108,7 @@ export const listingRouter = createTRPCRouter({
           .max(1000, {
             message: "Description must be less than 1000 characters long",
           }),
+        category: categoryEnum,
         price: z
           .number()
           .min(1, { message: "Price must be greater than 0" })
@@ -133,6 +145,7 @@ export const listingRouter = createTRPCRouter({
           country: input.country,
           city: input.city,
           userId,
+          category: input.category,
           images: {
             create: input.images,
           },
@@ -155,6 +168,7 @@ export const listingRouter = createTRPCRouter({
           .max(1000, {
             message: "Description must be less than 1000 characters long",
           }),
+        category: categoryEnum,
         price: z
           .number()
           .min(1, { message: "Price must be greater than 0" })
@@ -189,6 +203,7 @@ export const listingRouter = createTRPCRouter({
           beds: input.beds,
           baths: input.baths,
           city: input.city,
+          category: input.category,
           images: {
             deleteMany: {},
             create: input.images,
