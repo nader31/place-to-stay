@@ -12,14 +12,15 @@ datasource db {
 }
 
 model Listing {
-    id          String    @id @default(cuid())
-    createdAt   DateTime  @default(now())
-    updatedAt   DateTime  @updatedAt
+    id          String     @id @default(cuid())
+    createdAt   DateTime   @default(now())
+    updatedAt   DateTime   @updatedAt
     title       String
     description String
     price       Int
     beds        Int
     baths       Int
+    category    Categories
     address     String?
     city        String?
     state       String?
@@ -61,4 +62,14 @@ enum Status {
     pending
     confirmed
     canceled
+}
+
+enum Categories {
+    apartment
+    house
+    hotel
+    guesthouse
+    hostel
+    bnb
+    other
 }

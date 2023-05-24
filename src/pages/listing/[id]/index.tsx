@@ -389,7 +389,14 @@ const DescriptionView = (props: { data: SingleListing }) => {
           />
         </Link>
       </div>
-      <div className="mt-8">{data.listing.description}</div>
+      <div className="mt-8">
+        <div className="flex items-center gap-2">
+          <div></div>
+          <p className="capitalize">{data.listing.category}</p>
+        </div>
+        <h3 className="text-2xl font-medium">Description</h3>
+        <p className="mt-2 text-lg text-gray-500">{data.listing.description}</p>
+      </div>
     </div>
   );
 };
