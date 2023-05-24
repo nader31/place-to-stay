@@ -44,8 +44,8 @@ const SingleListingPage: NextPage<PageProps> = (
   const [images, setImages] = useState<string[]>(
     data?.listing?.images.map((image) => image.url) || []
   );
-  const [category, setCategory] = useState<Category>(
-    (data?.listing?.category as Category) || "apartment"
+  const [category, setCategory] = useState<Category | undefined>(
+    data?.listing?.category as Category | undefined
   );
 
   const [isOpen, setIsOpen] = useState(false);
@@ -92,7 +92,7 @@ const SingleListingPage: NextPage<PageProps> = (
       beds,
       baths,
       city,
-      category,
+      category: category || "other",
       images: images.map((image) => ({ url: image })),
       id: data?.listing?.id || "",
     });
