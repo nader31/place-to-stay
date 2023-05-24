@@ -165,7 +165,7 @@ export default function Header() {
               <div className="grid grid-cols-2 gap-4">
                 {isSignedIn && (
                   <Link
-                    href="#"
+                    href="/trips"
                     className="text-base font-medium text-gray-900 hover:text-gray-700"
                   >
                     My Trips
