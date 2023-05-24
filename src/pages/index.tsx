@@ -99,7 +99,7 @@ const Listings = () => {
   return (
     <div>
       <div className="mx-auto mb-10 max-w-2xl">
-        <div className="rounded-md border">
+        <div className="rounded-3xl border">
           <div className="relative flex w-full items-center overflow-hidden rounded-full bg-white">
             <div className="grid h-full place-items-center p-5 text-gray-300">
               <MagnifyingGlassIcon className="h-5 w-5" />
@@ -117,7 +117,7 @@ const Listings = () => {
               }}
             />
           </div>
-          <div className="flex gap-3 px-5 pb-5">
+          <div className="flex gap-3 px-5">
             <Datepicker
               startWeekOn="mon"
               minDate={new Date()}
@@ -133,11 +133,11 @@ const Listings = () => {
               placeholder="Select your dates"
               popoverDirection="down"
             />
-            {/* <p className="w-full rounded-md border px-4 py-2">Start date</p>
-            <p className="w-full rounded-md border px-4 py-2">End date</p> */}
+          </div>
+          <div className="px-5 pb-1">
+            <SelectCategory category={category} setCategory={setCategory} />
           </div>
         </div>
-        <SelectCategory category={category} setCategory={setCategory} />
       </div>
       <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
         {filteredData.map((fullListing) => (
