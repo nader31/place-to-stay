@@ -48,6 +48,12 @@ export const listingRouter = createTRPCRouter({
       z.object({
         startDate: z.date().optional(),
         endDate: z.date().optional(),
+        limit: z.number(),
+        cursor: z.string().nullish(),
+        skip: z.number().optional(),
+        search: z.string().optional(),
+        category: categoryEnum.optional(),
+        beds: z.number().optional(),
       })
     )
     .query(async ({ ctx, input }) => {
@@ -80,7 +86,9 @@ export const listingRouter = createTRPCRouter({
           : bookings.map((booking) => booking.listingId);
 
       const listings = await ctx.prisma.listing.findMany({
-        take: 100,
+        take: input.limit + 1,
+        skip: input.skip,
+        cursor: input.cursor ? { id: input.cursor } : undefined,
         orderBy: {
           createdAt: "desc",
         },
@@ -88,12 +96,40 @@ export const listingRouter = createTRPCRouter({
           id: {
             notIn: listingIds,
           },
+          OR: [
+            { city: { contains: input.search } },
+            { country: { contains: input.search } },
+            { title: { contains: input.search } },
+          ],
+          category: input.category,
+          beds: input.beds === 5 ? { gte: input.beds } : input.beds,
         },
         include: {
           images: true,
           bookings: true,
         },
       });
+
+      const listingsCount = await ctx.prisma.listing.count({
+        where: {
+          id: {
+            notIn: listingIds,
+          },
+          OR: [
+            { city: { contains: input.search } },
+            { country: { contains: input.search } },
+            { title: { contains: input.search } },
+          ],
+          category: input.category,
+        },
+      });
+
+      let nextCursor: typeof input.cursor | undefined = undefined;
+      if (listings.length > input.limit) {
+        const nextListing = listings.pop();
+        nextCursor = nextListing?.id;
+      }
+
       const users = (
         await clerkClient.users.getUserList({
           userId: listings.map((listing) => listing.userId || ""),
@@ -101,10 +137,14 @@ export const listingRouter = createTRPCRouter({
         })
       ).map(filterUserForClient);
 
-      return listings.map((listing) => ({
-        listing,
-        author: users.find((user) => user.id === listing.userId),
-      }));
+      return {
+        listings: listings.map((listing) => ({
+          listing,
+          author: users.find((user) => user.id === listing.userId),
+        })),
+        nextCursor,
+        listingsCount,
+      };
     }),
 
   getAllByUser: publicProcedure

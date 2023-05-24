@@ -2,6 +2,7 @@ import { useUser } from "@clerk/nextjs";
 import { Listbox, Transition } from "@headlessui/react";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/24/outline";
 import { Fragment, useState } from "react";
+import type { SetStateAction } from "react";
 import toast from "react-hot-toast";
 import countryList from "react-select-country-list";
 import PageLayout from "~/components/layout";
@@ -14,9 +15,11 @@ import clsx from "clsx";
 export const SelectCategory = ({
   category,
   setCategory,
+  setPage,
 }: {
   category: Category | undefined;
   setCategory: (category: Category | undefined) => void;
+  setPage?: React.Dispatch<SetStateAction<number>>;
 }) => {
   return (
     <div className="my-4 grid grid-cols-3 gap-3 md:grid-cols-6">
@@ -27,11 +30,12 @@ export const SelectCategory = ({
             ? "bg-neutral-900 text-white"
             : "hover:bg-gray-100"
         )}
-        onClick={() =>
+        onClick={() => {
+          setPage && setPage(0);
           category === "apartment"
             ? setCategory(undefined)
-            : setCategory("apartment")
-        }
+            : setCategory("apartment");
+        }}
       >
         <svg
           className="h-10 w-10"
@@ -53,9 +57,10 @@ export const SelectCategory = ({
             ? "bg-neutral-900 text-white"
             : "hover:bg-gray-100"
         )}
-        onClick={() =>
-          category === "house" ? setCategory(undefined) : setCategory("house")
-        }
+        onClick={() => {
+          setPage && setPage(0);
+          category === "house" ? setCategory(undefined) : setCategory("house");
+        }}
       >
         <svg
           className="h-10 w-10"
@@ -77,9 +82,10 @@ export const SelectCategory = ({
             ? "bg-neutral-900 text-white"
             : "hover:bg-gray-100"
         )}
-        onClick={() =>
-          category === "hotel" ? setCategory(undefined) : setCategory("hotel")
-        }
+        onClick={() => {
+          setPage && setPage(0);
+          category === "hotel" ? setCategory(undefined) : setCategory("hotel");
+        }}
       >
         <svg
           className="h-10 w-10"
@@ -101,11 +107,12 @@ export const SelectCategory = ({
             ? "bg-neutral-900 text-white"
             : "hover:bg-gray-100"
         )}
-        onClick={() =>
+        onClick={() => {
+          setPage && setPage(0);
           category === "guesthouse"
             ? setCategory(undefined)
-            : setCategory("guesthouse")
-        }
+            : setCategory("guesthouse");
+        }}
       >
         <svg
           className="h-10 w-10"
@@ -127,9 +134,12 @@ export const SelectCategory = ({
             ? "bg-neutral-900 text-white"
             : "hover:bg-gray-100"
         )}
-        onClick={() =>
-          category === "hostel" ? setCategory(undefined) : setCategory("hostel")
-        }
+        onClick={() => {
+          setPage && setPage(0);
+          category === "hostel"
+            ? setCategory(undefined)
+            : setCategory("hostel");
+        }}
       >
         <svg
           className="h-10 w-10"
@@ -152,9 +162,10 @@ export const SelectCategory = ({
             ? "bg-neutral-900 text-white"
             : "text-black hover:bg-gray-100"
         )}
-        onClick={() =>
-          category === "bnb" ? setCategory(undefined) : setCategory("bnb")
-        }
+        onClick={() => {
+          setPage && setPage(0);
+          category === "bnb" ? setCategory(undefined) : setCategory("bnb");
+        }}
       >
         <svg
           className="h-10 w-10"
