@@ -93,6 +93,9 @@ export const listingRouter = createTRPCRouter({
           createdAt: "desc",
         },
         where: {
+          userId: {
+            not: ctx.userId,
+          },
           id: {
             notIn: listingIds,
           },
@@ -112,6 +115,9 @@ export const listingRouter = createTRPCRouter({
 
       const listingsCount = await ctx.prisma.listing.count({
         where: {
+          userId: {
+            not: ctx.userId,
+          },
           id: {
             notIn: listingIds,
           },
