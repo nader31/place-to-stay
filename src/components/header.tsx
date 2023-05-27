@@ -61,6 +61,14 @@ export default function Header() {
             )}
             {isSignedIn && (
               <Link
+                href="/favorites"
+                className="text-base font-medium text-gray-500 hover:text-gray-900"
+              >
+                Favorites
+              </Link>
+            )}
+            {isSignedIn && (
+              <Link
                 href="/bookings"
                 className="flex items-center gap-1 text-base font-medium text-gray-500 hover:text-gray-900"
               >
@@ -169,6 +177,14 @@ export default function Header() {
                     className="text-base font-medium text-gray-900 hover:text-gray-700"
                   >
                     My Trips
+                  </Link>
+                )}
+                {isSignedIn && (
+                  <Link
+                    href="/favorites"
+                    className="text-base font-medium text-gray-900 hover:text-gray-700"
+                  >
+                    Favorites
                   </Link>
                 )}
                 {isSignedIn && (

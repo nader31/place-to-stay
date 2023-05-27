@@ -117,6 +117,12 @@ export const listingRouter = createTRPCRouter({
           images: true,
           bookings: true,
           review: true,
+          favorite: true,
+          _count: {
+            select: {
+              favorite: true,
+            },
+          },
         },
       });
 
@@ -160,6 +166,13 @@ export const listingRouter = createTRPCRouter({
               ? undefined
               : listing.review.reduce((acc, review) => acc + review.stars, 0) /
                 listing.review.length,
+          favorite: !!listing.favorite.find(
+            (favorite) => favorite.userId === ctx.userId
+          ),
+          favorites: listing._count.favorite,
+          bookingStatus: listing.bookings.find(
+            (booking) => booking.userId === ctx.userId
+          )?.status,
         })),
         nextCursor,
         listingsCount,

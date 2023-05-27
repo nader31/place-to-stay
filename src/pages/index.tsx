@@ -6,7 +6,7 @@ import { LoadingPage } from "~/components/loading";
 import Link from "next/link";
 import PageLayout from "~/components/layout";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/solid";
-import type { SetStateAction } from "react";
+import { SetStateAction } from "react";
 import { useState } from "react";
 import { SelectCategory } from "./listing/create";
 import type { Category } from "~/server/api/routers/listings";
@@ -19,7 +19,12 @@ import type {
   Image as ImageType,
   Listing,
   Review,
+  Status,
 } from "@prisma/client";
+import { HeartIcon } from "@heroicons/react/24/outline";
+import { HeartIcon as HeartIconSolid } from "@heroicons/react/24/solid";
+import { toast } from "react-hot-toast";
+import { Transition } from "@headlessui/react";
 
 export type ListingWithUser = {
   listing: Listing & {
@@ -35,16 +40,80 @@ export type ListingWithUser = {
       }
     | undefined;
   stars?: number | undefined;
+  favorite?: boolean;
+  bookingStatus?: Status;
+  favorites?: number;
 };
 
 export const ListingView = (props: ListingWithUser) => {
-  const { listing, author, stars } = props;
+  const { listing, author, stars, favorite, favorites, bookingStatus } = props;
+
+  const [isFavorite, setIsFavorite] = useState(favorite);
+
+  const [currentFavoriteCount, setCurrentFavoriteCount] = useState(favorites);
+
+  const { mutate: addFavorite } = api.favorites.create.useMutation({
+    onSuccess: () => {
+      toast.success("Added to favorites");
+      setIsFavorite(true);
+      setCurrentFavoriteCount((prev) => (prev || 0) + 1);
+    },
+  });
+  const { mutate: removeFavorite } = api.favorites.delete.useMutation({
+    onSuccess: () => {
+      toast.success("Removed from favorites");
+      setIsFavorite(false);
+      setCurrentFavoriteCount((prev) => (prev || 0) - 1);
+    },
+  });
+
+  const handleFavorite = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (!isFavorite) {
+      addFavorite({ listingId: listing.id });
+    } else {
+      removeFavorite({ listingId: listing.id });
+    }
+  };
+
   return (
     <Link
       href={`/listing/${listing.id}`}
       key={listing.id}
-      className="overflow-hidden"
+      className="relative overflow-hidden"
     >
+      <p className="absolute right-12 top-4 z-10 rounded-full p-1 text-end text-sm font-medium text-white">
+        <span className="font-bold">{currentFavoriteCount}</span>
+      </p>
+      <Transition
+        show={isFavorite}
+        className="absolute right-4 top-4 z-10"
+        enter="transition duration-100 ease-in-out"
+        enterFrom="scale-0"
+        enterTo="scale-100"
+        leave="transition duration-100 ease-in-out"
+        leaveFrom="scale-100"
+        leaveTo="scale-0"
+      >
+        <button onClick={handleFavorite}>
+          <HeartIconSolid className="h-8 w-8 scale-100 text-white drop-shadow-[0_0px_10px_rgba(255,255,255,0)] transition-all duration-300 hover:scale-110 hover:drop-shadow-[0_0px_10px_rgba(255,255,255,0.20)]" />
+        </button>
+      </Transition>
+      <Transition
+        show={!isFavorite}
+        className="absolute right-4 top-4 z-10"
+        enter="transition duration-100 ease-in-out"
+        enterFrom="scale-100"
+        enterTo="scale-100"
+        leave="transition duration-100 ease-in-out"
+        leaveFrom="opacity-100"
+        leaveTo="opacity-100"
+      >
+        <button onClick={handleFavorite}>
+          <HeartIcon className="h-8 w-8 scale-100 text-white drop-shadow-[0_0px_10px_rgba(255,255,255,0)] transition-all duration-300 hover:scale-110 hover:drop-shadow-[0_0px_10px_rgba(255,255,255,0.20)]" />
+        </button>
+      </Transition>
+      <div className="absolute h-72 w-full rounded-3xl bg-gradient-to-bl from-black/50 via-transparent"></div>
       {listing.images && listing.images.length > 0 && listing.images[0] ? (
         <Image
           src={listing.images[0].url}
@@ -76,18 +145,35 @@ export const ListingView = (props: ListingWithUser) => {
             <span className="font-bold">{listing.price}€</span> /night
           </p>
         </div>
-        {author && (
-          <Link href={`/${author.id}`} className="mt-2 flex items-center gap-2">
-            <Image
-              src={author?.profileImageURL}
-              className="h-5 w-5 rounded-full"
-              alt="Profile image"
-              width={20}
-              height={20}
-            />
-            <p className="text-xs">{author?.name}</p>
-          </Link>
-        )}
+        <div className="flex justify-between">
+          {author && (
+            <Link
+              href={`/${author.id}`}
+              className="mt-2 flex items-center gap-2"
+            >
+              <Image
+                src={author?.profileImageURL}
+                className="h-5 w-5 rounded-full"
+                alt="Profile image"
+                width={20}
+                height={20}
+              />
+              <p className="text-xs">{author?.name}</p>
+            </Link>
+          )}
+          {bookingStatus && (
+            <span
+              className={clsx(
+                "ml-2 inline-flex h-fit items-center rounded-md px-2 py-1 text-xs font-medium capitalize",
+                bookingStatus === "pending" && "bg-yellow-100 text-yellow-600",
+                bookingStatus === "confirmed" && "bg-green-100 text-green-600",
+                bookingStatus === "canceled" && "bg-red-100 text-red-600"
+              )}
+            >
+              {bookingStatus}
+            </span>
+          )}
+        </div>
       </div>
     </Link>
   );
