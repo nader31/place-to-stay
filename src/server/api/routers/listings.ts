@@ -96,7 +96,9 @@ export const listingRouter = createTRPCRouter({
         skip: input.skip,
         cursor: input.cursor ? { id: input.cursor } : undefined,
         orderBy: {
-          createdAt: "desc",
+          favorite: {
+            _count: "desc",
+          },
         },
         where: {
           userId: {

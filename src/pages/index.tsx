@@ -6,7 +6,7 @@ import { LoadingPage } from "~/components/loading";
 import Link from "next/link";
 import PageLayout from "~/components/layout";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/solid";
-import { SetStateAction } from "react";
+import type { SetStateAction } from "react";
 import { useState } from "react";
 import { SelectCategory } from "./listing/create";
 import type { Category } from "~/server/api/routers/listings";
@@ -82,37 +82,42 @@ export const ListingView = (props: ListingWithUser) => {
       key={listing.id}
       className="relative overflow-hidden"
     >
-      <p className="absolute right-12 top-4 z-10 rounded-full p-1 text-end text-sm font-medium text-white">
-        <span className="font-bold">{currentFavoriteCount}</span>
-      </p>
-      <Transition
-        show={isFavorite}
-        className="absolute right-4 top-4 z-10"
-        enter="transition duration-100 ease-in-out"
-        enterFrom="scale-0"
-        enterTo="scale-100"
-        leave="transition duration-100 ease-in-out"
-        leaveFrom="scale-100"
-        leaveTo="scale-0"
-      >
-        <button onClick={handleFavorite}>
-          <HeartIconSolid className="h-8 w-8 scale-100 text-white drop-shadow-[0_0px_10px_rgba(255,255,255,0)] transition-all duration-300 hover:scale-110 hover:drop-shadow-[0_0px_10px_rgba(255,255,255,0.20)]" />
-        </button>
-      </Transition>
-      <Transition
-        show={!isFavorite}
-        className="absolute right-4 top-4 z-10"
-        enter="transition duration-100 ease-in-out"
-        enterFrom="scale-100"
-        enterTo="scale-100"
-        leave="transition duration-100 ease-in-out"
-        leaveFrom="opacity-100"
-        leaveTo="opacity-100"
-      >
-        <button onClick={handleFavorite}>
-          <HeartIcon className="h-8 w-8 scale-100 text-white drop-shadow-[0_0px_10px_rgba(255,255,255,0)] transition-all duration-300 hover:scale-110 hover:drop-shadow-[0_0px_10px_rgba(255,255,255,0.20)]" />
-        </button>
-      </Transition>
+      {typeof favorites === "number" && (
+        <>
+          <p className="absolute right-12 top-4 z-10 rounded-full p-1 text-end text-sm font-medium text-white">
+            <span className="font-bold">{currentFavoriteCount}</span>
+          </p>
+          <Transition
+            show={isFavorite}
+            className="absolute right-4 top-4 z-10"
+            enter="transition duration-100 ease-in-out"
+            enterFrom="scale-0"
+            enterTo="scale-100"
+            leave="transition duration-100 ease-in-out"
+            leaveFrom="scale-100"
+            leaveTo="scale-0"
+          >
+            <button onClick={handleFavorite}>
+              <HeartIconSolid className="h-8 w-8 scale-100 text-white drop-shadow-[0_0px_10px_rgba(255,255,255,0)] transition-all duration-300 hover:scale-110 hover:drop-shadow-[0_0px_10px_rgba(255,255,255,0.20)]" />
+            </button>
+          </Transition>
+          <Transition
+            show={!isFavorite}
+            className="absolute right-4 top-4 z-10"
+            enter="transition duration-100 ease-in-out"
+            enterFrom="scale-100"
+            enterTo="scale-100"
+            leave="transition duration-100 ease-in-out"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-100"
+          >
+            <button onClick={handleFavorite}>
+              <HeartIcon className="h-8 w-8 scale-100 text-white drop-shadow-[0_0px_10px_rgba(255,255,255,0)] transition-all duration-300 hover:scale-110 hover:drop-shadow-[0_0px_10px_rgba(255,255,255,0.20)]" />
+            </button>
+          </Transition>
+        </>
+      )}
+
       <div className="absolute h-72 w-full rounded-3xl bg-gradient-to-bl from-black/50 via-transparent"></div>
       {listing.images && listing.images.length > 0 && listing.images[0] ? (
         <Image
