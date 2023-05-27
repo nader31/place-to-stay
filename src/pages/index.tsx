@@ -1,6 +1,5 @@
 import type { NextPage } from "next";
 import Head from "next/head";
-import type { RouterOutputs } from "~/utils/api";
 import { api } from "~/utils/api";
 import Image from "next/image";
 import { LoadingPage } from "~/components/loading";
@@ -15,8 +14,29 @@ import type { DateValueType } from "react-tailwindcss-datepicker/dist/types";
 import Datepicker from "react-tailwindcss-datepicker";
 import clsx from "clsx";
 import { StarIcon } from "@heroicons/react/24/solid";
+import type {
+  Booking,
+  Image as ImageType,
+  Listing,
+  Review,
+} from "@prisma/client";
 
-export type ListingWithUser = RouterOutputs["listings"]["getAll"][number];
+export type ListingWithUser = {
+  listing: Listing & {
+    review?: Review[];
+    images: ImageType[];
+    bookings: Booking[];
+  };
+  author:
+    | {
+        id: string;
+        name: string;
+        profileImageURL: string;
+      }
+    | undefined;
+  stars?: number | undefined;
+};
+
 export const ListingView = (props: ListingWithUser) => {
   const { listing, author, stars } = props;
   return (
