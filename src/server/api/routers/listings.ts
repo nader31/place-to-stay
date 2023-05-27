@@ -28,6 +28,7 @@ export const listingRouter = createTRPCRouter({
       include: {
         images: true,
         bookings: true,
+        review: true,
       },
     });
     const users = (
@@ -40,6 +41,11 @@ export const listingRouter = createTRPCRouter({
     return listings.map((listing) => ({
       listing,
       author: users.find((user) => user.id === listing.userId),
+      stars:
+        listing.review.length === 0
+          ? undefined
+          : listing.review.reduce((acc, review) => acc + review.stars, 0) /
+            listing.review.length,
     }));
   }),
 
@@ -110,6 +116,7 @@ export const listingRouter = createTRPCRouter({
         include: {
           images: true,
           bookings: true,
+          review: true,
         },
       });
 
@@ -148,6 +155,11 @@ export const listingRouter = createTRPCRouter({
         listings: listings.map((listing) => ({
           listing,
           author: users.find((user) => user.id === listing.userId),
+          stars:
+            listing.review.length === 0
+              ? undefined
+              : listing.review.reduce((acc, review) => acc + review.stars, 0) /
+                listing.review.length,
         })),
         nextCursor,
         listingsCount,

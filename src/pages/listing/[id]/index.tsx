@@ -23,7 +23,7 @@ import Link from "next/link";
 import { useClerk, useUser } from "@clerk/nextjs";
 import { PencilIcon } from "@heroicons/react/24/outline";
 import { toast } from "react-hot-toast";
-import LoadingSpinner from "~/components/loading";
+import LoadingSpinner, { LoadingPage } from "~/components/loading";
 
 type SingleListing = RouterOutputs["listings"]["getById"];
 
@@ -507,6 +507,268 @@ const DescriptionView = (props: { data: SingleListing }) => {
   );
 };
 
+const ReviewsView = (props: { data: SingleListing }) => {
+  const { data } = props;
+  const [reviewOpen, setReviewOpen] = useState(false);
+  const [reviewContent, setReviewContent] = useState("");
+  const [reviewRating, setReviewRating] = useState(0);
+
+  const ctx = api.useContext();
+
+  const { user } = useUser();
+
+  if (!data?.listing?.id) return <div />;
+
+  const { data: reviewsData, isLoading } = api.review.getAllByListing.useQuery({
+    listingId: data?.listing?.id,
+  });
+
+  const { mutate, isLoading: isSubmitting } = api.review.create.useMutation({
+    onSuccess: () => {
+      void ctx.review.getAllByListing.invalidate({
+        listingId: data?.listing?.id,
+      });
+      handleReset();
+      toast.success("Review submitted!");
+    },
+    onError: (e) => {
+      const errorMessage = e.data?.zodError?.fieldErrors;
+      if (errorMessage) {
+        Object.values(errorMessage).map((error) => {
+          if (error && error[0]) {
+            toast.error(error[0]);
+          }
+        });
+      }
+    },
+  });
+
+  if (isLoading) return <LoadingPage />;
+
+  const reviews = reviewsData?.reviews;
+
+  const handleReset = () => {
+    setReviewContent("");
+    setReviewRating(0);
+    setReviewOpen(false);
+  };
+
+  const handleReviewSubmit = () => {
+    mutate({
+      listingId: data?.listing?.id || "",
+      content: reviewContent,
+      rating: reviewRating,
+      userId: user?.id || "",
+    });
+  };
+
+  return (
+    <div className="bg-white">
+      <div className="py-16 sm:py-24 lg:grid lg:grid-cols-12 lg:gap-x-8 lg:py-32">
+        <div className="lg:col-span-4">
+          <h2 className="text-2xl font-medium tracking-tight text-neutral-900">
+            Customer Reviews
+          </h2>
+
+          <div className="mt-3 flex items-center">
+            <p className="font-bold">
+              {reviewsData?.averageStars?.toFixed(1) || 0}
+            </p>
+            <div className="ml-2">
+              <div className="flex items-center">
+                {[0, 1, 2, 3, 4].map((rating) => (
+                  <StarIcon
+                    key={rating}
+                    className={clsx(
+                      (reviewsData?.averageStars || 0) > rating
+                        ? "text-rose-600"
+                        : "text-gray-300",
+                      "h-5 w-5 flex-shrink-0"
+                    )}
+                    aria-hidden="true"
+                  />
+                ))}
+              </div>
+              <p className="sr-only">
+                {reviewsData?.averageStars} out of 5 stars
+              </p>
+            </div>
+
+            <p className="ml-4 mt-1 text-sm font-light text-gray-500">
+              Based on {reviewsData?.totalReviews}{" "}
+              {(reviewsData?.totalReviews || 0) > 1 ? "reviews" : "review"}
+            </p>
+          </div>
+
+          <div className="mt-6">
+            <h3 className="sr-only">Review data</h3>
+            <dl className="space-y-3">
+              {reviewsData?.countForStars.map((count) => (
+                <div key={count.rating} className="flex items-center text-sm">
+                  <dt className="flex flex-1 items-center">
+                    <p className="w-3 font-medium text-neutral-900">
+                      {count.rating}
+                      <span className="sr-only"> star reviews</span>
+                    </p>
+                    <div
+                      aria-hidden="true"
+                      className="ml-1 flex flex-1 items-center"
+                    >
+                      <StarIcon
+                        className={clsx(
+                          count.count > 0 ? "text-rose-600" : "text-gray-300",
+                          "h-5 w-5 flex-shrink-0"
+                        )}
+                        aria-hidden="true"
+                      />
+
+                      <div className="relative ml-3 flex-1">
+                        <div className="h-3 rounded-full border border-gray-200 bg-gray-100" />
+                        {count.count > 0 ? (
+                          <div
+                            className="absolute inset-y-0 rounded-full border border-rose-600 bg-rose-600"
+                            style={{
+                              width: `calc(${count.count} / ${reviewsData.totalReviews} * 100%)`,
+                            }}
+                          />
+                        ) : null}
+                      </div>
+                    </div>
+                  </dt>
+                  <dd className="ml-3 w-10 text-right text-sm tabular-nums text-neutral-900">
+                    {Math.round(
+                      (count.count / reviewsData.totalReviews || 0) * 100
+                    )}
+                    %
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+
+          <div className="mt-10">
+            <h3 className="text-lg font-medium text-neutral-900">
+              Share your thoughts
+            </h3>
+            <p className="mt-1 text-sm text-gray-600">
+              If you’ve stayed with this host before, please{" "}
+              <span className="font-medium text-neutral-900">
+                share your thoughts
+              </span>
+            </p>
+            {reviewOpen ? (
+              <div className="mt-6">
+                <div className="mb-3 flex items-center">
+                  <div className="flex items-center">
+                    {[0, 1, 2, 3, 4].map((rating) => (
+                      <button
+                        key={rating}
+                        type="button"
+                        className={clsx(
+                          reviewRating > rating
+                            ? "text-rose-600"
+                            : "text-gray-300",
+                          "h-5 w-5 flex-shrink-0"
+                        )}
+                        aria-label={`${rating + 1} out of 5 stars`}
+                        onClick={() => setReviewRating(rating + 1)}
+                      >
+                        <StarIcon
+                          className="h-full w-full rounded-full"
+                          aria-hidden="true"
+                        />
+                      </button>
+                    ))}
+                  </div>
+                  <p className="ml-3 text-sm text-neutral-900">
+                    <span className="font-bold">{reviewRating}</span> out of{" "}
+                    <span className="font-bold">5 </span>
+                    stars
+                  </p>
+                </div>
+                <textarea
+                  id="review"
+                  name="review"
+                  rows={4}
+                  className="w-full resize-none rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-rose-600 focus:ring-rose-600"
+                  defaultValue={""}
+                  placeholder="Write your review"
+                  onChange={(e) => setReviewContent(e.target.value)}
+                />
+                <div className="mt-6">
+                  <button
+                    disabled={isSubmitting}
+                    type="button"
+                    onClick={handleReviewSubmit}
+                    className="inline-flex w-full items-center justify-center rounded-md border border-transparent bg-rose-600 px-8 py-2 text-base font-medium text-white hover:bg-rose-700"
+                  >
+                    Submit
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setReviewOpen(true)}
+                className="mt-6 inline-flex w-full items-center justify-center rounded-md border border-gray-300 bg-white px-8 py-2 text-sm font-medium text-neutral-900 hover:bg-gray-50 sm:w-auto lg:w-full"
+              >
+                Write a review
+              </button>
+            )}
+          </div>
+        </div>
+        <div className="mt-16 lg:col-span-7 lg:col-start-6 lg:mt-0">
+          <h3 className="sr-only">Recent reviews</h3>
+
+          <div className="flow-root">
+            <div className="-my-12 divide-y divide-gray-200">
+              {reviews?.map((review) => (
+                <div key={review.id} className="py-12">
+                  <div className="flex items-center">
+                    {review.author?.profileImageURL && (
+                      <Image
+                        src={review.author?.profileImageURL}
+                        alt={"Profile image"}
+                        className="h-12 w-12 rounded-full"
+                        width={48}
+                        height={48}
+                      />
+                    )}
+                    <div className="ml-4">
+                      <h4 className="text-sm font-bold text-neutral-900">
+                        {review.author?.name}
+                      </h4>
+                      <div className="mt-1 flex items-center">
+                        {[0, 1, 2, 3, 4].map((rating) => (
+                          <StarIcon
+                            key={rating}
+                            className={clsx(
+                              review.stars > rating
+                                ? "text-rose-600"
+                                : "text-gray-300",
+                              "h-5 w-5 flex-shrink-0"
+                            )}
+                            aria-hidden="true"
+                          />
+                        ))}
+                      </div>
+                      <p className="sr-only">{review.stars} out of 5 stars</p>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 space-y-6 text-base italic text-gray-600">
+                    <p>{review.text}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 type PageProps = InferGetStaticPropsType<typeof getStaticProps>;
 
 const SingleListingPage: NextPage<PageProps> = (
@@ -523,6 +785,10 @@ const SingleListingPage: NextPage<PageProps> = (
   const { data: booking } = api.booking.getByUserAndListing.useQuery({
     listingId: data.listing.id,
     userId: user?.id,
+  });
+
+  const { data: reviewsData, isLoading } = api.review.getAllByListing.useQuery({
+    listingId: data?.listing?.id,
   });
 
   return (
@@ -566,16 +832,28 @@ const SingleListingPage: NextPage<PageProps> = (
             </div>
           </div>
           <div className="mt-2 flex gap-3">
-            <div className="flex items-center gap-2">
-              <StarIcon className="h-5 w-5" />
-              <span className="text-lg font-medium">5.0</span>
-            </div>
+            {isLoading ? (
+              <LoadingSpinner />
+            ) : reviewsData?.totalReviews ? (
+              <div className="flex items-center gap-2">
+                <StarIcon className="h-5 w-5 text-rose-600" />
+                <span className="text-lg font-medium">
+                  {reviewsData?.averageStars.toFixed(1)}
+                </span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <StarIcon className="h-5 w-5 text-rose-600" />
+                <span className="text-lg font-medium">No reviews yet</span>
+              </div>
+            )}
           </div>
           <ImageGallery data={data} />
           <div className="gap-24 lg:grid lg:grid-cols-11 lg:items-start">
             <DescriptionView data={data} />
             <BookingView data={data} isOwner={isOwner} />
           </div>
+          <ReviewsView data={data} />
         </div>
       </PageLayout>
     </>

@@ -14,10 +14,11 @@ import type { Category } from "~/server/api/routers/listings";
 import type { DateValueType } from "react-tailwindcss-datepicker/dist/types";
 import Datepicker from "react-tailwindcss-datepicker";
 import clsx from "clsx";
+import { StarIcon } from "@heroicons/react/24/solid";
 
 export type ListingWithUser = RouterOutputs["listings"]["getAll"][number];
 export const ListingView = (props: ListingWithUser) => {
-  const { listing, author } = props;
+  const { listing, author, stars } = props;
   return (
     <Link
       href={`/listing/${listing.id}`}
@@ -36,15 +37,25 @@ export const ListingView = (props: ListingWithUser) => {
         <div className="h-72 w-full rounded-3xl bg-gray-100"></div>
       )}
       <div className="py-2">
-        <p className="overflow-hidden text-ellipsis whitespace-nowrap font-semibold">
-          {listing.city}, {listing.country}
-        </p>
+        <div className="flex items-center justify-between gap-2">
+          <p className="overflow-hidden text-ellipsis whitespace-nowrap font-semibold">
+            {listing.city}, {listing.country}
+          </p>
+          {stars && (
+            <div className="flex items-center gap-1">
+              <StarIcon className="h-5 w-5 text-rose-600" />
+              <p className="font-medium">{stars.toFixed(1)}</p>
+            </div>
+          )}
+        </div>
         <p className="overflow-hidden overflow-ellipsis whitespace-nowrap text-sm text-gray-400">
           {listing.title}
         </p>
-        <p className="mt-2">
-          <span className="font-bold">{listing.price}€</span> /night
-        </p>
+        <div className="mt-2 flex justify-between">
+          <p>
+            <span className="font-bold">{listing.price}€</span> /night
+          </p>
+        </div>
         {author && (
           <Link href={`/${author.id}`} className="mt-2 flex items-center gap-2">
             <Image

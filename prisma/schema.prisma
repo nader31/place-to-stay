@@ -29,6 +29,7 @@ model Listing {
     userId      String?
     images      Image[]
     bookings    Booking[]
+    review      Review[]
 
     @@index([userId])
 }
@@ -72,4 +73,17 @@ enum Categories {
     hostel
     bnb
     other
+}
+
+model Review {
+    id        String   @id @default(cuid())
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    text      String?
+    stars     Int
+    listingId String
+    listing   Listing  @relation(fields: [listingId], references: [id])
+    userId    String
+
+    @@index([listingId])
 }
