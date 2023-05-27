@@ -507,8 +507,8 @@ const DescriptionView = (props: { data: SingleListing }) => {
   );
 };
 
-const ReviewsView = (props: { data: SingleListing }) => {
-  const { data } = props;
+const ReviewsView = (props: { data: SingleListing; isOwner: boolean }) => {
+  const { data, isOwner } = props;
   const [reviewOpen, setReviewOpen] = useState(false);
   const [reviewContent, setReviewContent] = useState("");
   const [reviewRating, setReviewRating] = useState(0);
@@ -571,10 +571,14 @@ const ReviewsView = (props: { data: SingleListing }) => {
           </h2>
 
           <div className="mt-3 flex items-center">
-            <p className="font-bold">
-              {reviewsData?.averageStars?.toFixed(1) || 0}
-            </p>
-            <div className="ml-2">
+            {reviewsData?.averageStars ? (
+              <p className="mr-2 font-bold">
+                {reviewsData?.averageStars?.toFixed(1) || 0}
+              </p>
+            ) : (
+              <div />
+            )}
+            <div>
               <div className="flex items-center">
                 {[0, 1, 2, 3, 4].map((rating) => (
                   <StarIcon
@@ -593,11 +597,16 @@ const ReviewsView = (props: { data: SingleListing }) => {
                 {reviewsData?.averageStars} out of 5 stars
               </p>
             </div>
-
-            <p className="ml-4 mt-1 text-sm font-light text-gray-500">
-              Based on {reviewsData?.totalReviews}{" "}
-              {(reviewsData?.totalReviews || 0) > 1 ? "reviews" : "review"}
-            </p>
+            {reviewsData?.totalReviews && reviewsData?.totalReviews > 0 ? (
+              <p className="ml-4 mt-1 text-sm font-light text-gray-500">
+                Based on {reviewsData?.totalReviews}{" "}
+                {(reviewsData?.totalReviews || 0) > 1 ? "reviews" : "review"}
+              </p>
+            ) : (
+              <p className="ml-4 mt-1 text-sm font-light text-gray-500">
+                No reviews yet
+              </p>
+            )}
           </div>
 
           <div className="mt-6">
@@ -645,77 +654,78 @@ const ReviewsView = (props: { data: SingleListing }) => {
               ))}
             </dl>
           </div>
-
-          <div className="mt-10">
-            <h3 className="text-lg font-medium text-neutral-900">
-              Share your thoughts
-            </h3>
-            <p className="mt-1 text-sm text-gray-600">
-              If you’ve stayed with this host before, please{" "}
-              <span className="font-medium text-neutral-900">
-                share your thoughts
-              </span>
-            </p>
-            {reviewOpen ? (
-              <div className="mt-6">
-                <div className="mb-3 flex items-center">
-                  <div className="flex items-center">
-                    {[0, 1, 2, 3, 4].map((rating) => (
-                      <button
-                        key={rating}
-                        type="button"
-                        className={clsx(
-                          reviewRating > rating
-                            ? "text-rose-600"
-                            : "text-gray-300",
-                          "h-5 w-5 flex-shrink-0"
-                        )}
-                        aria-label={`${rating + 1} out of 5 stars`}
-                        onClick={() => setReviewRating(rating + 1)}
-                      >
-                        <StarIcon
-                          className="h-full w-full rounded-full"
-                          aria-hidden="true"
-                        />
-                      </button>
-                    ))}
-                  </div>
-                  <p className="ml-3 text-sm text-neutral-900">
-                    <span className="font-bold">{reviewRating}</span> out of{" "}
-                    <span className="font-bold">5 </span>
-                    stars
-                  </p>
-                </div>
-                <textarea
-                  id="review"
-                  name="review"
-                  rows={4}
-                  className="w-full resize-none rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-rose-600 focus:ring-rose-600"
-                  defaultValue={""}
-                  placeholder="Write your review"
-                  onChange={(e) => setReviewContent(e.target.value)}
-                />
+          {!isOwner && (
+            <div className="mt-10">
+              <h3 className="text-lg font-medium text-neutral-900">
+                Share your thoughts
+              </h3>
+              <p className="mt-1 text-sm text-gray-600">
+                If you’ve stayed with this host before, please{" "}
+                <span className="font-medium text-neutral-900">
+                  share your thoughts
+                </span>
+              </p>
+              {reviewOpen ? (
                 <div className="mt-6">
-                  <button
-                    disabled={isSubmitting}
-                    type="button"
-                    onClick={handleReviewSubmit}
-                    className="inline-flex w-full items-center justify-center rounded-md border border-transparent bg-rose-600 px-8 py-2 text-base font-medium text-white hover:bg-rose-700"
-                  >
-                    Submit
-                  </button>
+                  <div className="mb-3 flex items-center">
+                    <div className="flex items-center">
+                      {[0, 1, 2, 3, 4].map((rating) => (
+                        <button
+                          key={rating}
+                          type="button"
+                          className={clsx(
+                            reviewRating > rating
+                              ? "text-rose-600"
+                              : "text-gray-300",
+                            "h-5 w-5 flex-shrink-0"
+                          )}
+                          aria-label={`${rating + 1} out of 5 stars`}
+                          onClick={() => setReviewRating(rating + 1)}
+                        >
+                          <StarIcon
+                            className="h-full w-full rounded-full"
+                            aria-hidden="true"
+                          />
+                        </button>
+                      ))}
+                    </div>
+                    <p className="ml-3 text-sm text-neutral-900">
+                      <span className="font-bold">{reviewRating}</span> out of{" "}
+                      <span className="font-bold">5 </span>
+                      stars
+                    </p>
+                  </div>
+                  <textarea
+                    id="review"
+                    name="review"
+                    rows={4}
+                    className="w-full resize-none rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-rose-600 focus:ring-rose-600"
+                    defaultValue={""}
+                    placeholder="Write your review"
+                    onChange={(e) => setReviewContent(e.target.value)}
+                  />
+                  <div className="mt-6">
+                    <button
+                      disabled={isSubmitting}
+                      type="button"
+                      onClick={handleReviewSubmit}
+                      className="inline-flex w-full items-center justify-center rounded-md border border-transparent bg-rose-600 px-8 py-2 text-base font-medium text-white hover:bg-rose-700"
+                    >
+                      Submit
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ) : (
-              <button
-                type="button"
-                onClick={() => setReviewOpen(true)}
-                className="mt-6 inline-flex w-full items-center justify-center rounded-md border border-gray-300 bg-white px-8 py-2 text-sm font-medium text-neutral-900 hover:bg-gray-50 sm:w-auto lg:w-full"
-              >
-                Write a review
-              </button>
-            )}
-          </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setReviewOpen(true)}
+                  className="mt-6 inline-flex w-full items-center justify-center rounded-md border border-gray-300 bg-white px-8 py-2 text-sm font-medium text-neutral-900 hover:bg-gray-50 sm:w-auto lg:w-full"
+                >
+                  Write a review
+                </button>
+              )}
+            </div>
+          )}
         </div>
         <div className="mt-16 lg:col-span-7 lg:col-start-6 lg:mt-0">
           <h3 className="sr-only">Recent reviews</h3>
@@ -840,6 +850,11 @@ const SingleListingPage: NextPage<PageProps> = (
                 <span className="text-lg font-medium">
                   {reviewsData?.averageStars.toFixed(1)}
                 </span>
+                <p className="text-sm text-gray-500">
+                  {" "}
+                  ({reviewsData?.totalReviews}{" "}
+                  {reviewsData?.totalReviews > 1 ? "reviews" : "review"})
+                </p>
               </div>
             ) : (
               <div className="flex items-center gap-2">
@@ -853,7 +868,7 @@ const SingleListingPage: NextPage<PageProps> = (
             <DescriptionView data={data} />
             <BookingView data={data} isOwner={isOwner} />
           </div>
-          <ReviewsView data={data} />
+          <ReviewsView data={data} isOwner={isOwner} />
         </div>
       </PageLayout>
     </>
