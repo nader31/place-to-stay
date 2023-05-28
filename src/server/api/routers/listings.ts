@@ -230,6 +230,12 @@ export const listingRouter = createTRPCRouter({
         include: {
           images: true,
           bookings: true,
+          _count: {
+            select: {
+              bookings: true,
+              favorite: true,
+            },
+          },
         },
       });
       const user = filterUserForClient(

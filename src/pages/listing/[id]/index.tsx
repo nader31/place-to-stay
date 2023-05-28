@@ -841,27 +841,43 @@ const SingleListingPage: NextPage<PageProps> = (
               </h2>
             </div>
           </div>
-          <div className="mt-2 flex gap-3">
-            {isLoading ? (
-              <LoadingSpinner />
-            ) : reviewsData?.totalReviews ? (
-              <div className="flex items-center gap-2">
-                <StarIcon className="h-5 w-5 text-rose-600" />
-                <span className="text-lg font-medium">
-                  {reviewsData?.averageStars.toFixed(1)}
-                </span>
-                <p className="text-sm text-gray-500">
-                  {" "}
-                  ({reviewsData?.totalReviews}{" "}
-                  {reviewsData?.totalReviews > 1 ? "reviews" : "review"})
-                </p>
-              </div>
-            ) : (
-              <div className="flex items-center gap-2">
-                <StarIcon className="h-5 w-5 text-rose-600" />
-                <span className="text-lg font-medium">No reviews yet</span>
-              </div>
-            )}
+          <div className="mt-2 flex items-center justify-between">
+            <div className="flex gap-3">
+              {isLoading ? (
+                <LoadingSpinner />
+              ) : reviewsData?.totalReviews ? (
+                <div className="flex items-center gap-2">
+                  <StarIcon className="h-5 w-5 text-rose-600" />
+                  <span className="text-lg font-medium">
+                    {reviewsData?.averageStars.toFixed(1)}
+                  </span>
+                  <p className="text-sm text-gray-500">
+                    {" "}
+                    ({reviewsData?.totalReviews}{" "}
+                    {reviewsData?.totalReviews > 1 ? "reviews" : "review"})
+                  </p>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <StarIcon className="h-5 w-5 text-rose-600" />
+                  <span className="text-lg font-medium">No reviews yet</span>
+                </div>
+              )}
+            </div>
+            <div className="flex gap-3 text-sm font-light">
+              <p>
+                <span className="font-medium">
+                  {data.listing._count?.bookings}
+                </span>{" "}
+                {data.listing._count?.bookings !== 1 ? "bookings" : "booking"}
+              </p>
+              <p>
+                <span className="font-medium">
+                  {data.listing._count?.favorite}
+                </span>{" "}
+                {data.listing._count?.favorite !== 1 ? "favorites" : "favorite"}
+              </p>
+            </div>
           </div>
           <ImageGallery data={data} />
           <div className="gap-24 lg:grid lg:grid-cols-11 lg:items-start">

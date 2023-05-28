@@ -113,6 +113,29 @@ export const bookingRouter = createTRPCRouter({
       }));
     }),
 
+  getBookingCountByListing: publicProcedure
+    .input(
+      z.object({
+        listingId: z.string(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const bookings = await ctx.prisma.booking.findMany({
+        take: 100,
+        orderBy: {
+          createdAt: "desc",
+        },
+        where: {
+          listingId: input.listingId,
+          status: "confirmed",
+        },
+        include: {
+          listing: true,
+        },
+      });
+      return bookings.length;
+    }),
+
   getBookingDatesByListing: publicProcedure
     .input(
       z.object({

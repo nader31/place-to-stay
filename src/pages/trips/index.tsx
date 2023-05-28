@@ -23,7 +23,6 @@ const TripsView = () => {
 
   return (
     <>
-      <h3 className="mb-5 font-medium">Upcoming Trips</h3>
       <div className="grid gap-x-4 gap-y-10 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
         {data.map((booking) => {
           const listing = booking.booking.listing;
@@ -91,6 +90,7 @@ export default function Trips() {
         <title>My Trips</title>
       </Head>
       <PageLayout>
+        <h3 className="mb-5 font-medium">Upcoming Trips</h3>
         <TripsView />
       </PageLayout>
     </>
