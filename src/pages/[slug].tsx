@@ -27,6 +27,9 @@ const UserStats = (props: { userId: string }) => {
           <div className="px-auto flex w-full flex-col items-center py-7">
             <LoadingSpinner size={25} />
           </div>
+          <div className="px-auto flex w-full flex-col items-center py-7">
+            <LoadingSpinner size={25} />
+          </div>
         </div>
       </div>
     );
