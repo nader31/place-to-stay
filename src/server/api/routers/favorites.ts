@@ -82,9 +82,12 @@ export const favoriteRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ ctx, input }) => {
+      if (!ctx.userId) {
+        throw new Error("You must be logged in to favorite a listing");
+      }
       const favorite = await ctx.prisma.favorite.create({
         data: {
-          userId: ctx.userId || "",
+          userId: ctx.userId,
           listingId: input.listingId,
         },
       });
@@ -101,11 +104,14 @@ export const favoriteRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ ctx, input }) => {
+      if (!ctx.userId) {
+        throw new Error("You must be logged in to favorite a listing");
+      }
       const favorite = await ctx.prisma.favorite.delete({
         where: {
           userId_listingId: {
             listingId: input.listingId,
-            userId: ctx.userId || "",
+            userId: ctx.userId,
           },
         },
       });

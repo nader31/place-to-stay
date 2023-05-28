@@ -25,6 +25,7 @@ import { HeartIcon } from "@heroicons/react/24/outline";
 import { HeartIcon as HeartIconSolid } from "@heroicons/react/24/solid";
 import { toast } from "react-hot-toast";
 import { Transition } from "@headlessui/react";
+import { useClerk, useUser } from "@clerk/nextjs";
 
 export type ListingWithUser = {
   listing: Listing & {
@@ -52,11 +53,17 @@ export const ListingView = (props: ListingWithUser) => {
 
   const [currentFavoriteCount, setCurrentFavoriteCount] = useState(favorites);
 
+  const { isSignedIn } = useUser();
+  const { openSignIn } = useClerk();
+
   const { mutate: addFavorite } = api.favorites.create.useMutation({
     onSuccess: () => {
       toast.success("Added to favorites");
       setIsFavorite(true);
       setCurrentFavoriteCount((prev) => (prev || 0) + 1);
+    },
+    onError: (error) => {
+      toast.error(error.message);
     },
   });
   const { mutate: removeFavorite } = api.favorites.delete.useMutation({
@@ -65,14 +72,21 @@ export const ListingView = (props: ListingWithUser) => {
       setIsFavorite(false);
       setCurrentFavoriteCount((prev) => (prev || 0) - 1);
     },
+    onError: (error) => {
+      toast.error(error.message);
+    },
   });
 
   const handleFavorite = (e: React.MouseEvent) => {
     e.preventDefault();
-    if (!isFavorite) {
-      addFavorite({ listingId: listing.id });
+    if (isSignedIn) {
+      if (!isFavorite) {
+        addFavorite({ listingId: listing.id });
+      } else {
+        removeFavorite({ listingId: listing.id });
+      }
     } else {
-      removeFavorite({ listingId: listing.id });
+      openSignIn();
     }
   };
 
@@ -118,15 +132,17 @@ export const ListingView = (props: ListingWithUser) => {
         </>
       )}
 
-      <div className="absolute h-72 w-full rounded-3xl bg-gradient-to-bl from-black/50 via-transparent"></div>
       {listing.images && listing.images.length > 0 && listing.images[0] ? (
-        <Image
-          src={listing.images[0].url}
-          alt="Listing image"
-          className="h-72 w-full rounded-3xl object-cover"
-          width={300}
-          height={288}
-        />
+        <>
+          <div className="absolute h-72 w-full rounded-3xl bg-gradient-to-bl from-black/50 via-transparent"></div>
+          <Image
+            src={listing.images[0].url}
+            alt="Listing image"
+            className="h-72 w-full rounded-3xl object-cover"
+            width={300}
+            height={288}
+          />
+        </>
       ) : (
         <div className="h-72 w-full rounded-3xl bg-gray-100"></div>
       )}

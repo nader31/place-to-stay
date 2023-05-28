@@ -515,7 +515,8 @@ const ReviewsView = (props: { data: SingleListing; isOwner: boolean }) => {
 
   const ctx = api.useContext();
 
-  const { user } = useUser();
+  const { user, isSignedIn } = useUser();
+  const { openSignIn } = useClerk();
 
   if (!data?.listing?.id) return <div />;
 
@@ -718,7 +719,9 @@ const ReviewsView = (props: { data: SingleListing; isOwner: boolean }) => {
               ) : (
                 <button
                   type="button"
-                  onClick={() => setReviewOpen(true)}
+                  onClick={() => {
+                    isSignedIn ? setReviewOpen(true) : openSignIn();
+                  }}
                   className="mt-6 inline-flex w-full items-center justify-center rounded-md border border-gray-300 bg-white px-8 py-2 text-sm font-medium text-neutral-900 hover:bg-gray-50 sm:w-auto lg:w-full"
                 >
                   Write a review
