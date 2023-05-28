@@ -1,5 +1,7 @@
+import { clerkClient } from "@clerk/nextjs";
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+import { filterUserForClient } from "~/server/helpers/filterUserForClient";
 
 export const favoriteRouter = createTRPCRouter({
   getAllByUser: publicProcedure.query(async ({ ctx }) => {
@@ -12,12 +14,39 @@ export const favoriteRouter = createTRPCRouter({
         userId: ctx.userId || "",
       },
       include: {
-        listing: true,
+        listing: {
+          include: {
+            images: true,
+            bookings: true,
+            review: true,
+            favorite: true,
+          },
+        },
       },
     });
 
+    const users = (
+      await clerkClient.users.getUserList({
+        userId: favorites.map((favorite) => favorite.listing.userId || ""),
+        limit: 100,
+      })
+    ).map(filterUserForClient);
+
     return favorites.map((favorite) => ({
-      favorite,
+      listing: favorite.listing,
+      author: users.find((user) => user.id === favorite.listing.userId),
+      stars:
+        favorite.listing.review.length === 0
+          ? undefined
+          : favorite.listing.review.reduce(
+              (acc, review) => acc + review.stars,
+              0
+            ) / favorite.listing.review.length,
+      favorites: favorite.listing.favorite.length,
+      favorite: true,
+      bookingStatus: favorite.listing.bookings.find(
+        (booking) => booking.userId === ctx.userId
+      )?.status,
     }));
   }),
 

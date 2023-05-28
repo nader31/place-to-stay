@@ -12,7 +12,12 @@ const UserStats = (props: { userId: string }) => {
   const { data, isLoading: listingsLoading } =
     api.listings.getAllByUser.useQuery({ userId: props.userId });
 
-  if (listingsLoading)
+  const { data: bookingsData, isLoading: bookingsLoading } =
+    api.booking.getBookingCountByUser.useQuery({
+      userId: props.userId,
+    });
+
+  if (listingsLoading || bookingsLoading)
     return (
       <div className="my-10 flex w-full justify-center">
         <div className="flex w-full max-w-lg divide-x rounded-2xl bg-gray-50">
@@ -48,6 +53,10 @@ const UserStats = (props: { userId: string }) => {
           <div className="flex w-full flex-col py-3 text-center">
             <h4 className="text-3xl font-medium">{data.length}</h4>
             <p className="text-sm text-gray-500">Listings</p>
+          </div>
+          <div className="flex w-full flex-col py-3 text-center">
+            <h4 className="text-3xl font-medium">{bookingsData}</h4>
+            <p className="text-sm text-gray-500">Bookings</p>
           </div>
           <div className="px-auto flex w-full flex-col py-3 text-center">
             <h4 className="text-3xl font-medium">{mostListingsCity[0]}</h4>

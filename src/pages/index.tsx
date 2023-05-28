@@ -255,7 +255,6 @@ const Listings = (props: {
               stroke="currentColor"
             />
           </svg>
-
           <p className="mt-4 text-2xl font-semibold">No listings found</p>
           <p className="mt-2 text-sm text-gray-400">Try changing your search</p>
         </div>
