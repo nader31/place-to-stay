@@ -103,6 +103,9 @@ const ProfilePage: NextPage<PageProps> = (
     id,
   });
 
+  const { data: reviewData, isLoading: isReviewLoding } =
+    api.review.getAllByUserListings.useQuery({ userId: id });
+
   if (!data)
     return (
       <main className="grid min-h-screen place-items-center bg-white">
@@ -146,11 +149,71 @@ const ProfilePage: NextPage<PageProps> = (
           <div className="mb-5 flex w-full justify-center">
             <div className="flex items-center gap-1">
               <StarIcon className="h-5 w-5" />
-              <span className="text-lg font-medium">5.0</span>
+              {isReviewLoding ? (
+                <LoadingSpinner size={25} />
+              ) : (
+                <span className="text-lg font-medium">
+                  {reviewData?.averageStars}
+                </span>
+              )}
             </div>
           </div>
           <UserStats userId={data.id} />
           <UserListingView userId={data.id} />
+          <h3 className="mt-16 font-medium">User&apos;s Reviews</h3>
+          {reviewData?.reviews.map((review, reviewIdx) => (
+            <div
+              key={review.id}
+              className="flex space-x-4 text-sm text-gray-500"
+            >
+              <Link
+                href={`/${review.author?.id || ""}`}
+                className="flex-none py-10"
+              >
+                <Image
+                  src={review.author?.profileImageURL || ""}
+                  alt="Profile image"
+                  className="h-10 w-10 rounded-full bg-gray-100"
+                  width={40}
+                  height={40}
+                />
+              </Link>
+              <div
+                className={clsx(
+                  reviewIdx === 0 ? "" : "border-t border-gray-200",
+                  "flex-1 py-10"
+                )}
+              >
+                <Link
+                  href={`/${review.author?.id || ""}`}
+                  className="font-medium text-gray-900"
+                >
+                  {review.author?.name}
+                </Link>
+                <p>{moment(review.createdAt).fromNow()}</p>
+
+                <div className="mt-4 flex items-center">
+                  {[0, 1, 2, 3, 4].map((rating) => (
+                    <StarIcon
+                      key={rating}
+                      className={clsx(
+                        review.stars > rating
+                          ? "text-yellow-400"
+                          : "text-gray-300",
+                        "h-5 w-5 flex-shrink-0"
+                      )}
+                      aria-hidden="true"
+                    />
+                  ))}
+                </div>
+                <p className="sr-only">{review.stars} out of 5 stars</p>
+
+                <p className="prose prose-sm mt-4 max-w-none text-gray-500">
+                  {review.text}
+                </p>
+              </div>
+            </div>
+          ))}
         </div>
       </PageLayout>
     </>
@@ -166,6 +229,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { ListingView } from ".";
 import { StarIcon } from "@heroicons/react/24/solid";
+import clsx from "clsx";
+import moment from "moment";
 
 export const getStaticProps = async (context: GetStaticPropsContext) => {
   const helpers = createServerSideHelpers({

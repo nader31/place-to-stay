@@ -107,6 +107,93 @@ export const reviewRouter = createTRPCRouter({
       };
     }),
 
+  getAllByUserListings: publicProcedure
+    .input(
+      z.object({
+        userId: z.string(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const listings = await ctx.prisma.listing.findMany({
+        where: {
+          userId: input.userId,
+        },
+      });
+
+      const reviews = await ctx.prisma.review.findMany({
+        take: 100,
+        orderBy: {
+          createdAt: "desc",
+        },
+        where: {
+          listingId: {
+            in: listings.map((listing) => listing.id),
+          },
+        },
+        include: {
+          listing: true,
+        },
+      });
+
+      const totalReviews = await ctx.prisma.review.count({
+        where: {
+          listingId: {
+            in: listings.map((listing) => listing.id),
+          },
+        },
+      });
+
+      const totalStars = await ctx.prisma.review.aggregate({
+        where: {
+          listingId: {
+            in: listings.map((listing) => listing.id),
+          },
+        },
+        _sum: {
+          stars: true,
+        },
+      });
+
+      const averageStars = (totalStars._sum.stars || 0) / totalReviews;
+
+      const countForStars: count[] = [];
+
+      for (let i = 1; i < 6; i++) {
+        const count = await ctx.prisma.review.count({
+          where: {
+            listingId: {
+              in: listings.map((listing) => listing.id),
+            },
+            stars: i,
+          },
+        });
+        countForStars.push({
+          rating: i,
+          count: count,
+        });
+      }
+
+      const users = (
+        await clerkClient.users.getUserList({
+          userId: reviews.map((review) => review.userId || ""),
+          limit: 100,
+        })
+      ).map(filterUserForClient);
+
+      return {
+        reviews: reviews
+          .filter((review) => review.text !== "")
+          .slice(0, 3)
+          .map((review) => ({
+            ...review,
+            author: users.find((user) => user.id === review.userId),
+          })),
+        totalReviews,
+        averageStars,
+        countForStars,
+      };
+    }),
+
   create: privateProcedure
     .input(
       z.object({

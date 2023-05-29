@@ -120,4 +120,16 @@ export const favoriteRouter = createTRPCRouter({
         favorite,
       };
     }),
+
+  deleteAllWhereUserIdIsNull: publicProcedure.mutation(async ({ ctx }) => {
+    const favorites = await ctx.prisma.favorite.deleteMany({
+      where: {
+        userId: "",
+      },
+    });
+
+    return {
+      favorites,
+    };
+  }),
 });
