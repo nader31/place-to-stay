@@ -204,7 +204,12 @@ export const reviewRouter = createTRPCRouter({
           .int()
           .min(1, { message: "Rating must be 1-5" })
           .max(5),
-        content: z.string().optional(),
+        content: z
+          .string()
+          .max(1000, {
+            message: "Review must be less than 1000 characters long",
+          })
+          .optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
